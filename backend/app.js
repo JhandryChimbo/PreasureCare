@@ -5,7 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var usersRouter = require('./routes/pressure');
 
 var app = express();
 
@@ -21,6 +21,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+
+//syn models
+let models = require("./app/models");
+models.sequelize
+  .sync()
+  .then(() => {
+    console.log("Base de datos sincronizada");
+  })
+  .catch((err) => {
+    console.log(err, "ATENTCION!! Error en la sincronización");
+  });
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
