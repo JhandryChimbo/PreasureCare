@@ -12,8 +12,9 @@ module.exports = (sequelize, DataTypes) => {
         { freezeTableName: true }
     );
     persona.associate = function (models){
-        persona.belongsTo(models.rol, { foreignKey: "id_rol" });
         persona.hasOne(models.cuenta, { foreignKey: "id_persona", as: "cuenta"});
+        persona.belongsTo(models.rol, { foreignKey: "id_rol" });
+        persona.hasMany(models.registro, { foreignKey: "id_persona", as: "registro"});
     };
 
     return persona;
