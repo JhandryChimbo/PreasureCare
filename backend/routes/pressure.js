@@ -1,7 +1,10 @@
 var express = require('express');
 var router = express.Router();
 
-let jwt = require("jsonwebtoken");
+let jwt = require("jsonwebtoken")
+
+const cuentaC = require("../app/controls/cuentaControl");
+let cuentaControl = new cuentaC();
 
 const rolC = require("../app/controls/rolControl");
 let rolControl = new rolC();
@@ -13,6 +16,9 @@ let personaControl = new personaC();
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
+
+//LOGIN
+router.post("/login", cuentaControl.login);
 
 //ROL
 router.get("/admin/rol", rolControl.listar);
