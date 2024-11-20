@@ -20,6 +20,7 @@ router.post("/admin/rol/save", rolControl.crear);
 
 //PERSONA
 router.get("/admin/persona", personaControl.listar);
+router.get("/admin/persona/:external", personaControl.listarPorId);
 router.post("/admin/persona/save", personaControl.crear);
 router.put("/admin/persona/update/:external", personaControl.actualizar);
 
