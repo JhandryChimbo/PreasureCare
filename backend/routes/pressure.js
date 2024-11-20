@@ -6,6 +6,9 @@ let jwt = require("jsonwebtoken");
 const rolC = require("../app/controls/rolControl");
 let rolControl = new rolC();
 
+const personaC = require("../app/controls/personaControl");
+let personaControl = new personaC();
+
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
@@ -14,5 +17,9 @@ router.get('/', function(req, res, next) {
 //ROL
 router.get("/admin/rol", rolControl.listar);
 router.post("/admin/rol/save", rolControl.crear);
+
+//PERSONA
+router.get("/admin/persona", personaControl.listar);
+router.post("/admin/persona/save", personaControl.crear);
 
 module.exports = router;
