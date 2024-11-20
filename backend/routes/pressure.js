@@ -21,5 +21,6 @@ router.post("/admin/rol/save", rolControl.crear);
 //PERSONA
 router.get("/admin/persona", personaControl.listar);
 router.post("/admin/persona/save", personaControl.crear);
+router.put("/admin/persona/update/:external", personaControl.actualizar);
 
 module.exports = router;
