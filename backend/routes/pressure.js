@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-let jwt = require("jsonwebtoken")
+const auth = require('../middleware/auth');
 
 const cuentaC = require("../app/controls/cuentaControl");
 let cuentaControl = new cuentaC();
@@ -13,7 +13,7 @@ const personaC = require("../app/controls/personaControl");
 let personaControl = new personaC();
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
   res.send('respond with a resource');
 });
 
@@ -21,14 +21,14 @@ router.get('/', function(req, res, next) {
 router.post("/login", cuentaControl.login);
 
 //ROL
-router.get("/admin/rol", rolControl.listar);
-router.post("/admin/rol/save", rolControl.crear);
+router.get("/admin/rol", auth.authAdministrador, rolControl.listar);
+router.post("/admin/rol/save", auth.authAdministrador, rolControl.crear);
 
 //PERSONA
-router.get("/admin/persona", personaControl.listar);
-router.get("/admin/persona/:external", personaControl.listarPorId);
-router.post("/admin/persona/save", personaControl.crear);
-router.put("/admin/persona/update/:external", personaControl.actualizar);
-router.put("/admin/persona/estado/:external", personaControl.actualizarEstado);
+router.get("/admin/persona", auth.authAdministrador, personaControl.listar);
+router.get("/admin/persona/:external", auth.authAdministrador, personaControl.listarPorId);
+router.post("/admin/persona/save", auth.authAdministrador, personaControl.crear);
+router.put("/admin/persona/update/:external", auth.authAdministrador, personaControl.actualizar);
+router.put("/admin/persona/estado/:external", auth.authAdministrador, personaControl.actualizarEstado);
 
 module.exports = router;
