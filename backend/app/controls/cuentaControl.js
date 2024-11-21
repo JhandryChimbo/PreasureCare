@@ -20,7 +20,7 @@ class cuentaControl {
         try {
             const cuentaLogin = await cuenta.findOne({
                 where: { correo: correo },
-                // include: [{ model: persona, attributes: ["nombres", "apellidos", "external_id"] }],
+                include: [{ model: persona, attributes: ["nombres", "apellidos", "external_id", "id_rol"] }],
             });
             if (!cuentaLogin) {
                 return res.status(404).json({ msg: "Cuenta no encontrada", code: 404 });
