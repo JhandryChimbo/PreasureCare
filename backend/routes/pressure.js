@@ -29,5 +29,6 @@ router.get("/admin/persona", personaControl.listar);
 router.get("/admin/persona/:external", personaControl.listarPorId);
 router.post("/admin/persona/save", personaControl.crear);
 router.put("/admin/persona/update/:external", personaControl.actualizar);
+router.put("/admin/persona/estado/:external", personaControl.actualizarEstado);
 
 module.exports = router;

@@ -141,6 +141,30 @@ class personaControl {
       res.status(500).json({ msg: "Error interno del servidor", code: 500 });
     }
   }
+
+  async actualizarEstado(req, res) {
+    const { external } = req.params;
+    if (!external) {
+      return res.status(400).json({ msg: "Faltan datos", code: 400 });
+    }
+    try {
+      const transaction = await models.sequelize.transaction();
+      const personaModificar = await persona.findOne({ where: { external_id: external }, include: [{model: cuenta, as: "cuenta"}], transaction });
+      if (!personaModificar) {
+        await transaction.rollback();
+        return res.status(404).json({ msg: "Persona no encontrada", code: 404 });
+      }
+      personaModificar.cuenta.estado = !personaModificar.cuenta.estado;
+      personaModificar.external_id = require("uuid").v4();
+      await personaModificar.cuenta.save({ transaction });
+      await personaModificar.save({ transaction });
+      await transaction.commit();
+      res.status(200).json({ msg: "Estado modificado", code: 200 });
+    } catch (error) {
+      if (transaction) await transaction.rollback();
+      res.status(500).json({ msg: "Error interno del servidor", code: 500 });
+    }
+  }
 }
 
 module.exports = personaControl;
