@@ -1,10 +1,12 @@
 var express = require('express');
 var router = express.Router();
 
+const validationResult = require('express-validator');
 const auth = require('../middleware/auth');
 
 const cuentaC = require("../app/controls/cuentaControl");
 let cuentaControl = new cuentaC();
+const inicioSesionValidation = require('../validators/cuentaValidator');
 
 const rolC = require("../app/controls/rolControl");
 let rolControl = new rolC();
@@ -18,7 +20,7 @@ router.get('/', function (req, res, next) {
 });
 
 //LOGIN
-router.post("/login", cuentaControl.login);
+router.post("/login", inicioSesionValidation.inicioSesion, cuentaControl.login);
 
 //ROL
 router.get("/admin/rol", auth.authAdministrador, rolControl.listar);
