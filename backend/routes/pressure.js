@@ -14,6 +14,7 @@ const personaC = require("../app/controls/personaControl");
 let personaControl = new personaC();
 
 const presionC = require("../app/controls/presionControl");
+const presionValidator = require('../validators/presionValidator');
 let presionControl = new presionC();
 
 /* GET users listing. */
@@ -39,6 +40,6 @@ router.put("/admin/persona/estado/:external", auth.authAdministrador, personaCon
 //PRESION
 router.get("/persona/presiones/:external", auth.authAdministrador, personaControl.listarPresiones);
 router.get("/presion", auth.authAdministrador, presionControl.listar);
-router.post("/presion/save", auth.authAdministrador, presionControl.crear);
+router.post("/presion/save", auth.authAdministrador, presionValidator.crear, presionControl.crear);
 
 module.exports = router;
