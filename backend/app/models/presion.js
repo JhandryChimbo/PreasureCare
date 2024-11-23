@@ -12,7 +12,6 @@ module.exports = (sequelize, DataTypes) => {
         { freezeTableName: true }
     );
     presion.associate = function (models){
-        presion.belongsTo(models.historial, { foreignKey: "id_historial" });
         presion.belongsTo(models.persona, { foreignKey: "id_persona" });
         presion.belongsTo(models.medicacion, { foreignKey: "id_medicacion" });
     };
