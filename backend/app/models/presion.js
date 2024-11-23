@@ -1,6 +1,6 @@
 "use strict";
 module.exports = (sequelize, DataTypes) => {
-    const registro = sequelize.define(
+    const presion = sequelize.define(
         "registro",
         {
             fecha: {type: DataTypes.DATEONLY},
@@ -11,12 +11,12 @@ module.exports = (sequelize, DataTypes) => {
         },
         { freezeTableName: true }
     );
-    registro.associate = function (models){
-        registro.belongsTo(models.historial, { foreignKey: "id_historial" });
-        registro.belongsTo(models.persona, { foreignKey: "id_persona" });
-        registro.belongsTo(models.medicacion, { foreignKey: "id_medicacion" });
+    presion.associate = function (models){
+        presion.belongsTo(models.historial, { foreignKey: "id_historial" });
+        presion.belongsTo(models.persona, { foreignKey: "id_persona" });
+        presion.belongsTo(models.medicacion, { foreignKey: "id_medicacion" });
     };
 
-    return registro;
+    return presion;
     
 };

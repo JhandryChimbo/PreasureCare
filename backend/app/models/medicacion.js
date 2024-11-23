@@ -12,10 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     { freezeTableName: true }
   );
   medicacion.associate = function (models) {
-    medicacion.hasMany(models.registro, {
-      foreignKey: "id_medicacion",
-      as: "registro",
-    });
+    medicacion.hasMany(models.presion, { foreignKey: "id_medicacion", as: "presion" });
   };
 
   return medicacion;

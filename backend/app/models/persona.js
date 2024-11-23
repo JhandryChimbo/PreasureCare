@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     persona.associate = function (models){
         persona.hasOne(models.cuenta, { foreignKey: "id_persona", as: "cuenta"});
         persona.belongsTo(models.rol, { foreignKey: "id_rol" });
-        persona.hasMany(models.registro, { foreignKey: "id_persona", as: "registro"});
+        persona.hasMany(models.presion, { foreignKey: "id_persona", as: "presion"});
     };
 
     return persona;
