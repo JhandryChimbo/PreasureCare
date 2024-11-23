@@ -33,7 +33,7 @@ router.get("/admin/rol", auth.authAdministrador, rolControl.listar);
 router.post("/admin/rol/save", auth.authAdministrador, rolControl.crear);
 
 //PERSONA
-router.get("/admin/persona", auth.authAdministrador, personaControl.listar);
+router.get("/admin/persona", auth.authControl, personaControl.listar);
 router.get("/admin/persona/:external", auth.authAdministrador, personaControl.listarPorId);
 router.post("/admin/persona/save", auth.authAdministrador, personaControl.crear);
 router.put("/admin/persona/update/:external", auth.authAdministrador, personaControl.actualizar);
@@ -41,13 +41,13 @@ router.put("/admin/persona/estado/:external", auth.authAdministrador, personaCon
 
 
 //PRESION
-router.get("/persona/presiones/:external", auth.authAdministrador, personaControl.listarPresiones);
-router.get("/persona/historial", auth.authAdministrador, personaControl.listarHistoriales);
+router.get("/persona/presiones/:external", auth.authPaciente, personaControl.listarPresiones);
+router.get("/persona/historial", auth.authGeneral, personaControl.listarHistoriales);
 router.get("/presion", auth.authAdministrador, presionControl.listar);
-router.post("/presion/save", auth.authAdministrador, presionValidator.crear, presionControl.crear);
+router.post("/presion/save", auth.authGeneral, presionValidator.crear, presionControl.crear);
 
 //MEDICACION
-router.get("/medicacion", auth.authAdministrador, medicacionControl.listar);
-router.post("/medicacion/save", auth.authAdministrador, medicacionControl.crear);
+router.get("/medicacion", auth.authControl, medicacionControl.listar);
+router.post("/medicacion/save", auth.authControl, medicacionControl.crear);
 
 module.exports = router;
