@@ -17,6 +17,9 @@ const presionC = require("../app/controls/presionControl");
 const presionValidator = require('../validators/presionValidator');
 let presionControl = new presionC();
 
+const medicacionC = require("../app/controls/medicacionControl");
+let medicacionControl = new medicacionC();
+
 /* GET users listing. */
 router.get('/', function (req, res, next) {
   res.send('respond with a resource');
@@ -42,5 +45,9 @@ router.get("/persona/presiones/:external", auth.authAdministrador, personaContro
 router.get("/persona/historial", auth.authAdministrador, personaControl.listarHistoriales);
 router.get("/presion", auth.authAdministrador, presionControl.listar);
 router.post("/presion/save", auth.authAdministrador, presionValidator.crear, presionControl.crear);
+
+//MEDICACION
+router.get("/medicacion", auth.authAdministrador, medicacionControl.listar);
+router.post("/medicacion/save", auth.authAdministrador, medicacionControl.crear);
 
 module.exports = router;
