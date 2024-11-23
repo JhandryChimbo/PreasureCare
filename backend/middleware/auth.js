@@ -55,7 +55,7 @@ const auth = (rolesPermitidos) => async (req, res, next) => {
         res.status(401);
         return res.json({
             msg: "ERROR",
-            tag: "Token no valido o expirado", err,
+            tag: "Token no valido o expirado",
             code: 401,
         });
     }
