@@ -14,13 +14,22 @@ let rolControl = new rolC();
 const personaC = require("../app/controls/personaControl");
 let personaControl = new personaC();
 
+// Middleware para manejar errores de validación
+const handleValidationErrors = (req, res, next) => {
+  const errors = validationResult.validationResult(req);
+  if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+  }
+  next();
+}
+
 /* GET users listing. */
 router.get('/', function (req, res, next) {
   res.send('respond with a resource');
 });
 
 //LOGIN
-router.post("/login", inicioSesionValidation.inicioSesion, cuentaControl.login);
+router.post("/login", inicioSesionValidation.inicioSesion, handleValidationErrors, cuentaControl.login);
 
 //ROL
 router.get("/admin/rol", auth.authAdministrador, rolControl.listar);
