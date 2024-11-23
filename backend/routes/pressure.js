@@ -13,6 +13,9 @@ let rolControl = new rolC();
 const personaC = require("../app/controls/personaControl");
 let personaControl = new personaC();
 
+const presionC = require("../app/controls/presionControl");
+let presionControl = new presionC();
+
 /* GET users listing. */
 router.get('/', function (req, res, next) {
   res.send('respond with a resource');
@@ -31,5 +34,11 @@ router.get("/admin/persona/:external", auth.authAdministrador, personaControl.li
 router.post("/admin/persona/save", auth.authAdministrador, personaControl.crear);
 router.put("/admin/persona/update/:external", auth.authAdministrador, personaControl.actualizar);
 router.put("/admin/persona/estado/:external", auth.authAdministrador, personaControl.actualizarEstado);
+
+
+//PRESION
+router.get("/persona/presiones/:external", auth.authAdministrador, personaControl.listarPresiones);
+router.get("/presion", auth.authAdministrador, presionControl.listar);
+router.post("/presion/save", auth.authAdministrador, presionControl.crear);
 
 module.exports = router;
