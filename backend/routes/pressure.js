@@ -11,6 +11,7 @@ const rolC = require("../app/controls/rolControl");
 let rolControl = new rolC();
 
 const personaC = require("../app/controls/personaControl");
+const usuarioValidator = require('../validators/usuarioValidator');
 let personaControl = new personaC();
 
 const presionC = require("../app/controls/presionControl");
@@ -29,13 +30,14 @@ router.get('/', function (req, res, next) {
 router.post("/login", inicioSesionValidation.inicioSesion, cuentaControl.login);
 
 //ROL
-router.get("/admin/rol", auth.authAdministrador, rolControl.listar);
-router.post("/admin/rol/save", auth.authAdministrador, rolControl.crear);
+router.get("/admin/rol", rolControl.listar);
+router.post("/admin/rol/save", rolControl.crear);
 
 //PERSONA
 router.get("/admin/persona", auth.authControl, personaControl.listar);
 router.get("/admin/persona/:external", auth.authAdministrador, personaControl.listarPorId);
 router.post("/admin/persona/save", auth.authAdministrador, personaControl.crear);
+router.post("/persona/save", usuarioValidator.crearUsuario, personaControl.crearUsuario);
 router.put("/admin/persona/update/:external", auth.authAdministrador, personaControl.actualizar);
 router.put("/admin/persona/estado/:external", auth.authAdministrador, personaControl.actualizarEstado);
 
