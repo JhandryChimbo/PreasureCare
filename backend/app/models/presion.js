@@ -1,7 +1,7 @@
 "use strict";
 module.exports = (sequelize, DataTypes) => {
     const presion = sequelize.define(
-        "registro",
+        "presion",
         {
             fecha: {type: DataTypes.DATEONLY},
             hora: {type: DataTypes.TIME},
