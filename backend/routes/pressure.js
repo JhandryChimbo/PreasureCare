@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 
-const validationResult = require('express-validator');
 const auth = require('../middleware/auth');
 
 const cuentaC = require("../app/controls/cuentaControl");
@@ -14,14 +13,8 @@ let rolControl = new rolC();
 const personaC = require("../app/controls/personaControl");
 let personaControl = new personaC();
 
-// Middleware para manejar errores de validación
-const handleValidationErrors = (req, res, next) => {
-  const errors = validationResult.validationResult(req);
-  if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-  }
-  next();
-}
+const presionC = require("../app/controls/presionControl");
+let presionControl = new presionC();
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
@@ -29,7 +22,7 @@ router.get('/', function (req, res, next) {
 });
 
 //LOGIN
-router.post("/login", inicioSesionValidation.inicioSesion, handleValidationErrors, cuentaControl.login);
+router.post("/login", inicioSesionValidation.inicioSesion, cuentaControl.login);
 
 //ROL
 router.get("/admin/rol", auth.authAdministrador, rolControl.listar);
@@ -41,5 +34,11 @@ router.get("/admin/persona/:external", auth.authAdministrador, personaControl.li
 router.post("/admin/persona/save", auth.authAdministrador, personaControl.crear);
 router.put("/admin/persona/update/:external", auth.authAdministrador, personaControl.actualizar);
 router.put("/admin/persona/estado/:external", auth.authAdministrador, personaControl.actualizarEstado);
+
+
+//PRESION
+router.get("/persona/presiones/:external", auth.authAdministrador, personaControl.listarPresiones);
+router.get("/presion", auth.authAdministrador, presionControl.listar);
+router.post("/presion/save", auth.authAdministrador, presionControl.crear);
 
 module.exports = router;
