@@ -61,8 +61,10 @@ const auth = (rolesPermitidos) => async (req, res, next) => {
     }
 };
 
+const authGeneral = auth(["administrador", "doctor", "paciente"]);
+const authControl = auth(["administrador", "doctor"]);
 const authAdministrador = auth(["administrador"]);
 const authDoctor = auth(["doctor"]);
 const authPaciente = auth(["paciente"]);
 
-module.exports = { auth, authAdministrador: authAdministrador, authDoctor: authDoctor, authPaciente: authPaciente };
+module.exports = { auth, authGeneral, authControl, authAdministrador, authDoctor, authPaciente };

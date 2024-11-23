@@ -11,11 +11,15 @@ const rolC = require("../app/controls/rolControl");
 let rolControl = new rolC();
 
 const personaC = require("../app/controls/personaControl");
+const usuarioValidator = require('../validators/usuarioValidator');
 let personaControl = new personaC();
 
 const presionC = require("../app/controls/presionControl");
 const presionValidator = require('../validators/presionValidator');
 let presionControl = new presionC();
+
+const medicacionC = require("../app/controls/medicacionControl");
+let medicacionControl = new medicacionC();
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
@@ -26,21 +30,26 @@ router.get('/', function (req, res, next) {
 router.post("/login", inicioSesionValidation.inicioSesion, cuentaControl.login);
 
 //ROL
-router.get("/admin/rol", auth.authAdministrador, rolControl.listar);
-router.post("/admin/rol/save", auth.authAdministrador, rolControl.crear);
+router.get("/admin/rol", rolControl.listar);
+router.post("/admin/rol/save", rolControl.crear);
 
 //PERSONA
-router.get("/admin/persona", auth.authAdministrador, personaControl.listar);
+router.get("/admin/persona", auth.authControl, personaControl.listar);
 router.get("/admin/persona/:external", auth.authAdministrador, personaControl.listarPorId);
 router.post("/admin/persona/save", auth.authAdministrador, personaControl.crear);
+router.post("/persona/save", usuarioValidator.crearUsuario, personaControl.crearUsuario);
 router.put("/admin/persona/update/:external", auth.authAdministrador, personaControl.actualizar);
 router.put("/admin/persona/estado/:external", auth.authAdministrador, personaControl.actualizarEstado);
 
 
 //PRESION
-router.get("/persona/presiones/:external", auth.authAdministrador, personaControl.listarPresiones);
-router.get("/persona/historial", auth.authAdministrador, personaControl.listarHistoriales);
+router.get("/persona/presiones/:external", auth.authPaciente, personaControl.listarPresiones);
+router.get("/persona/historial", auth.authGeneral, personaControl.listarHistoriales);
 router.get("/presion", auth.authAdministrador, presionControl.listar);
-router.post("/presion/save", auth.authAdministrador, presionValidator.crear, presionControl.crear);
+router.post("/presion/save", auth.authGeneral, presionValidator.crear, presionControl.crear);
+
+//MEDICACION
+router.get("/medicacion", auth.authControl, medicacionControl.listar);
+router.post("/medicacion/save", auth.authControl, medicacionControl.crear);
 
 module.exports = router;

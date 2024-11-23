@@ -151,6 +151,55 @@ class personaControl {
     }
   }
 
+  async crearUsuario(req, res) {
+    const { nombres, apellidos, fecha_nacimiento, correo, clave } = req.body;
+    if (!nombres || !apellidos || !fecha_nacimiento || !correo || !clave) {
+      return res.status(400).json({ msg: "Faltan datos", code: 400 });
+    }
+    try {
+      const existeCuenta = await cuenta.findOne({ where: { correo } });
+      if (existeCuenta) {
+        return res.status(400).json({ msg: "El correo ya está en uso", code: 400 });
+      }
+      const uuid = require("uuid");
+      const rolAux = await rol.findOne({ where: { nombre: "paciente" } });
+      if (!rolAux) {
+        return res.status(404).json({ msg: "Rol no encontrado", code: 404 });
+      }
+      const data = {
+        nombres,
+        apellidos,
+        fecha_nacimiento,
+        id_rol: rolAux.id,
+        external_id: uuid.v4(),
+        cuenta: {
+          correo,
+          clave: bcrypt.hashSync(clave, 10),
+        },
+      };
+      const transaction = await models.sequelize.transaction();
+      try {
+        const resultado = await persona.create(data, {
+          include: [{ model: models.cuenta, as: "cuenta" }],
+          transaction,
+        });
+        if (!resultado) {
+          await transaction.rollback();
+          return res.status(400).json({ msg: "Error al crear la persona", code: 400 });
+        }
+        await transaction.commit();
+        rolAux.external_id = uuid.v4();
+        await rolAux.save();
+        res.status(200).json({ msg: "Persona creada", code: 200, data });
+      } catch (error) {
+        await transaction.rollback();
+        res.status(500).json({ msg: "Error en la transacción", code: 500 });
+      }
+    } catch (error) {
+      res.status(500).json({ msg: "Error interno del servidor", code: 500 });
+    }
+  }
+
   async actualizar(req, res) {
     const { nombres, apellidos, fecha_nacimiento, id_rol } = req.body;
     const { external } = req.params;
