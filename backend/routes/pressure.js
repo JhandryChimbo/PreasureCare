@@ -19,6 +19,7 @@ const presionValidator = require('../validators/presionValidator');
 let presionControl = new presionC();
 
 const medicacionC = require("../app/controls/medicacionControl");
+const medicacionValidator = require('../validators/medicacionValidator');
 let medicacionControl = new medicacionC();
 
 /* GET users listing. */
@@ -49,7 +50,7 @@ router.get("/presion", auth.authAdministrador, presionControl.listar);
 router.post("/presion/save", auth.authGeneral, presionValidator.crear, presionControl.crear);
 
 //MEDICACION
-router.get("/medicacion", auth.authControl, medicacionControl.listar);
+router.get("/medicacion", auth.authControl,medicacionValidator.crear ,medicacionControl.listar);
 router.post("/medicacion/save", auth.authControl, medicacionControl.crear);
 
 module.exports = router;
