@@ -22,12 +22,14 @@ class cuentaControl {
                 where: { correo: correo },
                 include: [{ model: persona, attributes: ["nombres", "apellidos", "external_id", "id_rol"] }],
             });
-            const cuentaRol = await rol.findOne({
-                where: { id: cuentaLogin.persona.id_rol },
-            });
             if (!cuentaLogin) {
                 return res.status(404).json({ msg: "Cuenta no encontrada", code: 404 });
             }
+            
+            const cuentaRol = await rol.findOne({
+                where: { id: cuentaLogin.persona.id_rol },
+            });
+            
             if(cuentaLogin.estado === false){
                 return res.status(401).json({ msg: "Cuenta deshabilitada", code: 401 });
             }
