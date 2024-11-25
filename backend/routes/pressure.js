@@ -50,7 +50,8 @@ router.get("/presion", auth.authAdministrador, presionControl.listar);
 router.post("/presion/save", auth.authGeneral, presionValidator.crear, presionControl.crear);
 
 //MEDICACION
-router.get("/medicacion", auth.authControl,medicacionValidator.crear ,medicacionControl.listar);
+router.get("/medicacion", auth.authControl, medicacionControl.listar);
 router.post("/medicacion/save", auth.authControl, medicacionControl.crear);
+router.put("/medicacion/update/:external", auth.authControl, medicacionControl.actualizar);
 
 module.exports = router;
