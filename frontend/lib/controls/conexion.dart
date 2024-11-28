@@ -5,50 +5,89 @@ import 'package:frontend/controls/util/util.dart';
 import 'package:frontend/controls/backendService/GenericAnswer.dart';
 
 class Conexion {
-  final String URL = 'http://';
-
-  static bool NO_TOKEN = false;
+  static const String URL = 'http://192.168.0.105:3000/pressure/';
+  static const bool NO_TOKEN = false; //p-token
 
   Future<GenericAnswer> solicitudGet(String recurso, bool token) async {
-    Map<String, String> _header = {"Content-Type": "application/json"};
+    final Map<String, String> header = {"Content-Type": "application/json"};
 
     if (token) {
-      Util util = Util();
-      String? tokenA = await util.getValue("token");
-      _header = {
+      final Util util = Util();
+      final String? tokenAux = await util.getValue("token");
+      header.addAll({
         "Content-Type": "application/json",
-        "anime-token": tokenA.toString(),
-      };
+        "p-token": tokenAux.toString(),
+      });
     }
 
-    final String _url = URL + recurso;
-    final uri = Uri.parse(_url);
+    final String url = URL + recurso;
+    final uri = Uri.parse(url);
 
     try {
-      final response = await http.get(uri, headers: _header);
+      final response = await http.get(uri, headers: header);
+      log(response.body);
 
       if (response.statusCode != 200) {
         if (response.statusCode == 404) {
           return _response(404, "Recurso no encontrado", []);
         } else {
-          Map<dynamic, dynamic> mapa = jsonDecode(response.body);
+          final Map<String, dynamic> mapa = jsonDecode(response.body);
           return _response(mapa['code'], mapa['msg'], mapa['datos']);
         }
       } else {
         log(response.body);
-        Map<dynamic, dynamic> mapa = jsonDecode(response.body);
+        final Map<String, dynamic> mapa = jsonDecode(response.body);
         return _response(mapa['code'], mapa['msg'], mapa['datos']);
       }
     } catch (e) {
+      log('Error: $e');
       return _response(500, "Error Inesperado", []);
     }
   }
 
-    GenericAnswer _response(int code, String msg, dynamic data) {
-    var respuesta = GenericAnswer(msg: '', code: 0, data: {});
-    respuesta.code = code;
-    respuesta.data = data;
-    respuesta.msg = msg;
-    return respuesta;
+  Future<GenericAnswer> solicitudPost(
+      String recurso, bool token, Map<dynamic, dynamic> mapa) async {
+    Map<String, String> header = {'Content-Type': 'application/json'};
+    if (token) {
+      Util util = Util();
+      String? token = await util.getValue('token');
+      header = {
+        'Content-Type': 'application/json',
+        'p-token': token.toString(),
+      };
+    }
+
+    final String url = URL + recurso;
+    final uri = Uri.parse(url);
+
+    try {
+      final response = await http.post(
+        uri,
+        headers: header,
+        body: jsonEncode(mapa),
+      );
+
+      if (response.statusCode != 200) {
+        if (response.statusCode == 404) {
+          return _response(404, "Recurso no encontrado -  Solicitud", []);
+        } else {
+          Map<dynamic, dynamic> mapa = jsonDecode(response.body);
+          return _response(mapa['code'], mapa['msg'], mapa['data']);
+        }
+      } else {
+        Map<dynamic, dynamic> mapa = jsonDecode(response.body);
+        return _response(mapa['code'], mapa['msg'], mapa['data']);
+      }
+    } catch (e) {
+      return _response(500, "Error inesperado", []);
+    }
+  }
+
+  GenericAnswer _response(int code, String msg, dynamic data) {
+    return GenericAnswer(
+      code: code,
+      msg: msg,
+      data: data,
+    );
   }
 }
