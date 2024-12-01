@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Page404 extends StatefulWidget {
-  const Page404({Key? key}) : super(key: key);
+  const Page404({super.key});
 
   @override
   _Page404State createState() => _Page404State();

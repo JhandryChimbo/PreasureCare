@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:frontend/controls/backendService/FacadeServices.dart';
 import 'package:frontend/controls/util/util.dart';
 import 'package:validators/validators.dart';
+import 'package:frontend/widgets/informativeToast.dart';
 
 class LoginView extends StatefulWidget {
-  const LoginView({Key? key}) : super(key: key);
+  const LoginView({super.key});
 
   @override
   _LoginViewState createState() => _LoginViewState();
@@ -42,16 +43,16 @@ class _LoginViewState extends State<LoginView> {
         await util.saveValue('token', value.data['token']);
         await util.saveValue('usuario', value.data['usuario']);
         await util.saveValue('external', value.data['external']);
-        final SnackBar msg = SnackBar(content: Text("BIENVENIDO ${value.data['usuario']}"));
-        ScaffoldMessenger.of(context).showSnackBar(msg);
+        InformativeToast.show("BIENVENIDO ${value.data['usuario']}");
+        // final SnackBar msg = SnackBar(content: Text("BIENVENIDO ${value.data['usuario']}"));
+        // ScaffoldMessenger.of(context).showSnackBar(msg);
         Navigator.pushNamedAndRemoveUntil(
           context,
-          '/animes',
+          '/home',
           (Route<dynamic> route) => false,
         );
       } else {
-        final SnackBar msg = SnackBar(content: Text("Error ${value.msg}"));
-        ScaffoldMessenger.of(context).showSnackBar(msg);
+        InformativeToast.show(value.msg);
       }
     } else {
       log("Errores");
@@ -202,9 +203,6 @@ class _LoginViewState extends State<LoginView> {
         foregroundColor: Colors.white,
         backgroundColor: const Color(0xFF2897FF),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
       ),
       child: const Text(
         "Iniciar Sesión",
@@ -236,11 +234,10 @@ class _LoginViewState extends State<LoginView> {
               fontSize: 16,
               fontWeight: FontWeight.bold,
               decoration: TextDecoration.underline,
-              decorationColor: Colors.blue, 
+              decorationColor: Colors.blue,
             ),
           ),
         ),
-        
       ],
     );
   }
