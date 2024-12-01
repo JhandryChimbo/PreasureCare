@@ -8,6 +8,9 @@ module.exports = {
         database: process.env.DB_NAME,
         dialect: 'mysql',
         host: process.env.DB_HOST,
+        port: process.env.DB_PORT,
+        ssl: true,
+        sslMode: 'REQUIRED',
         operatorAliases: false
     }
 };
