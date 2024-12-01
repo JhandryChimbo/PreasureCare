@@ -5,7 +5,7 @@ import 'package:frontend/controls/util/util.dart';
 import 'package:frontend/controls/backendService/GenericAnswer.dart';
 
 class Conexion {
-  static const String URL = 'https://preasurecare.onrender.com/pressure';
+  static const String URL = 'https://preasurecare.onrender.com/pressure/';
   static const bool NO_TOKEN = false; //p-token
 
   Future<GenericAnswer> solicitudGet(String recurso, bool token) async {

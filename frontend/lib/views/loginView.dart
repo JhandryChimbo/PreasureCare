@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/controls/backendService/FacadeServices.dart';
 import 'package:frontend/controls/util/util.dart';
 import 'package:validators/validators.dart';
-import 'package:frontend/widgets/informativeToast.dart';
+import 'package:frontend/widgets/toast/informative.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
