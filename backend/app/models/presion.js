@@ -5,8 +5,8 @@ module.exports = (sequelize, DataTypes) => {
         {
             fecha: {type: DataTypes.DATEONLY},
             hora: {type: DataTypes.TIME},
-            sistolica : {type: DataTypes.TINYINT, allowNull: false},
-            diastolica : {type: DataTypes.TINYINT, allowNull: false},
+            sistolica : {type: DataTypes.INTEGER, allowNull: false},
+            diastolica : {type: DataTypes.INTEGER, allowNull: false},
             external_id: {type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4},
         },
         { freezeTableName: true }
