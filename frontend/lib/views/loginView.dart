@@ -88,7 +88,13 @@ class _LoginViewState extends State<LoginView> {
             Color.fromARGB(255, 183, 189, 203),
           ],
         ),
+        // image: DecorationImage(
+        //   image: AssetImage('assets/fondo.png'),
+        //   fit: BoxFit.scaleDown,
+        //   alignment: Alignment.topCenter,
+        // ),
       ),
+      
     );
   }
 

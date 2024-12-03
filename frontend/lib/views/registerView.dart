@@ -1,191 +1,232 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:frontend/controls/backendService/FacadeServices.dart';
+import 'package:frontend/controls/util/util.dart';
+import 'package:validators/validators.dart';
+import 'package:frontend/widgets/toast/informative.dart';
 
-class RegisterView extends StatefulWidget {
-  const RegisterView({super.key});
+class LoginView extends StatefulWidget {
+  const LoginView({super.key});
 
   @override
-  _RegisterViewState createState() => _RegisterViewState();
+  _LoginViewState createState() => _LoginViewState();
 }
 
-class _RegisterViewState extends State<RegisterView> {
+class _LoginViewState extends State<LoginView> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController nombresC = TextEditingController();
-  final TextEditingController apellidosC = TextEditingController();
-  final TextEditingController correoC = TextEditingController();
-  final TextEditingController claveC = TextEditingController();
+  final TextEditingController correoControl = TextEditingController();
+  final TextEditingController claveControl = TextEditingController();
+  bool _isLoading = false;
+
+  Future<void> _iniciar() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      FacadeServices servicio = FacadeServices();
+      Map<String, String> mapa = {
+        "correo": correoControl.text,
+        "clave": claveControl.text
+      };
+      log(mapa.toString());
+
+      final value = await servicio.login(mapa);
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (value.code == 200) {
+        log(value.data['token']);
+        log(value.data['usuario']);
+        Util util = Util();
+        await util.saveValue('token', value.data['token']);
+        await util.saveValue('usuario', value.data['usuario']);
+        await util.saveValue('external', value.data['external']);
+        InformativeToast.show("BIENVENIDO ${value.data['usuario']}");
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/home',
+          (Route<dynamic> route) => false,
+        );
+      } else {
+        InformativeToast.show(value.msg);
+      }
+    } else {
+      log("Errores");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Scaffold(
-        body: Stack(
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage("assets/background/fondoInicio.jpeg"),
-                  fit: BoxFit.cover,
-                ),
-              ),
+    return Scaffold(
+      body: Stack(
+        children: [
+          _buildBackground(),
+          _buildForm(),
+          if (_isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Center(
-                child: SingleChildScrollView(
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          const Color.fromARGB(255, 24, 79, 135)
-                              .withOpacity(0.5),
-                          Colors.white.withOpacity(0.5),
-                        ],
-                      ),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        const SizedBox(height: 20),
-                        const Text(
-                          "Registro de Usuarios",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 20),
-                        TextFormField(
-                          controller: apellidosC,
-                          decoration: const InputDecoration(
-                            labelText: "Apellidos",
-                            prefixIcon: Icon(Icons.person),
-                            prefixIconColor: Colors.white,
-                            labelStyle: TextStyle(color: Colors.white),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                          ),
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        const SizedBox(height: 20),
-                        TextFormField(
-                          controller: nombresC,
-                          decoration: const InputDecoration(
-                            labelText: "Nombres",
-                            prefixIcon: Icon(Icons.person),
-                            prefixIconColor: Colors.white,
-                            labelStyle: TextStyle(color: Colors.white),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                          ),
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        const SizedBox(height: 20),
-                        TextFormField(
-                          controller: correoC,
-                          decoration: const InputDecoration(
-                            labelText: "Correo",
-                            prefixIcon: Icon(Icons.email),
-                            prefixIconColor: Colors.white,
-                            labelStyle: TextStyle(color: Colors.white),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                          ),
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        const SizedBox(height: 20),
-                        TextFormField(
-                          obscureText: true,
-                          controller: claveC,
-                          decoration: const InputDecoration(
-                            labelText: "Clave",
-                            prefixIcon: Icon(Icons.lock),
-                            prefixIconColor: Colors.white,
-                            labelStyle: TextStyle(color: Colors.white),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                          ),
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.white.withOpacity(0.5),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            side: const BorderSide(color: Colors.white),
-                          ),
-                          child: const Text(
-                            "Registrar",
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            const Text(
-                              "¿Ya tienes una cuenta?",
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pushNamedAndRemoveUntil(
-                                  context,
-                                  '/login',
-                                  (Route<dynamic> route) => false,
-                                );
-                              },
-                              child: const Text(
-                                "Inicio de Sesión",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: Colors.white),
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBackground() {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white, // Fondo blanco
+      ),
+    );
+  }
+
+  Widget _buildForm() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 50),
+      child: Center(
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                const Text(
+                  "PressureCare",
+                  style: TextStyle(
+                    color: Color(0xFF1E88E5),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.25,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/fondo.png'),
+                      fit: BoxFit.contain,
+                      alignment: Alignment.center,
                     ),
                   ),
                 ),
-              ),
-            )
-          ],
+                const SizedBox(height: 10),
+                const Text(
+                  "Inicia sesion para continuar",
+                  style: TextStyle(color: Color(0xFF1E88E5)),
+                ),
+                const SizedBox(height: 20),
+                _buildEmailField(),
+                const SizedBox(height: 20),
+                _buildPasswordField(),
+                const SizedBox(height: 20),
+                _buildLoginButton(),
+                const SizedBox(height: 20),
+                _buildRegisterLink(),
+              ],
+            ),
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildEmailField() {
+    return TextFormField(
+      controller: correoControl,
+      validator: (value) {
+        if (value!.isEmpty) {
+          return "Debe ingresar un correo";
+        }
+        if (!isEmail(value)) {
+          return "Debe ingresar un correo válido";
+        }
+        return null;
+      },
+      decoration: const InputDecoration(
+        labelText: "Correo",
+        prefixIcon: Icon(Icons.email, color: Color(0xFF1E88E5)),
+        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+      ),
+      style: const TextStyle(color: Colors.blue),
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return TextFormField(
+      obscureText: true,
+      controller: claveControl,
+      validator: (value) {
+        if (value!.isEmpty) {
+          return "Debe ingresar una clave";
+        }
+        return null;
+      },
+      decoration: const InputDecoration(
+        labelText: "Clave",
+        prefixIcon: Icon(Icons.lock, color: Color(0xFF1E88E5)),
+        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+      ),
+      style: const TextStyle(color: Colors.blue),
+    );
+  }
+
+  Widget _buildLoginButton() {
+    return ElevatedButton(
+      onPressed: _iniciar,
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: const Color(0xFF2897FF),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      child: const Text(
+        "Iniciar Sesión",
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildRegisterLink() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        const Text(
+          "¿No tienes una cuenta?",
+          style: TextStyle(color: Color(0xFF1E88E5)),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/register',
+              (Route<dynamic> route) => false,
+            );
+          },
+          child: const Text(
+            "Regístrate",
+            style: TextStyle(
+              color: Color(0xFF2897FF),
+              fontSize: 16,
+              decoration: TextDecoration.underline,
+              decorationColor: Color(0xFF2897FF),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
