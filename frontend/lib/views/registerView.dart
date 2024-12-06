@@ -5,20 +5,21 @@ import 'package:frontend/controls/util/util.dart';
 import 'package:validators/validators.dart';
 import 'package:frontend/widgets/toast/informative.dart';
 
-class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+class RegisterView extends StatefulWidget {
+  const RegisterView({super.key});
 
   @override
-  _LoginViewState createState() => _LoginViewState();
+  _RegisterViewState createState() => _RegisterViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _RegisterViewState extends State<RegisterView> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController correoControl = TextEditingController();
   final TextEditingController claveControl = TextEditingController();
+  final TextEditingController nombreControl = TextEditingController();
   bool _isLoading = false;
 
-  Future<void> _iniciar() async {
+  Future<void> _registrar() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
@@ -27,7 +28,8 @@ class _LoginViewState extends State<LoginView> {
       FacadeServices servicio = FacadeServices();
       Map<String, String> mapa = {
         "correo": correoControl.text,
-        "clave": claveControl.text
+        "clave": claveControl.text,
+        "nombre": nombreControl.text
       };
       log(mapa.toString());
 
@@ -114,22 +116,48 @@ class _LoginViewState extends State<LoginView> {
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                  "Inicia sesion para continuar",
+                  "Regístrate para continuar",
                   style: TextStyle(color: Color(0xFF1E88E5)),
                 ),
+                const SizedBox(height: 20),
+                _buildNameField(),
                 const SizedBox(height: 20),
                 _buildEmailField(),
                 const SizedBox(height: 20),
                 _buildPasswordField(),
                 const SizedBox(height: 20),
-                _buildLoginButton(),
+                _buildRegisterButton(),
                 const SizedBox(height: 20),
-                _buildRegisterLink(),
+                _buildLoginLink(),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildNameField() {
+    return TextFormField(
+      controller: nombreControl,
+      validator: (value) {
+        if (value!.isEmpty) {
+          return "Debe ingresar un nombre";
+        }
+        return null;
+      },
+      decoration: const InputDecoration(
+        labelText: "Nombre",
+        prefixIcon: Icon(Icons.person, color: Color(0xFF1E88E5)),
+        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+      ),
+      style: const TextStyle(color: Colors.blue),
     );
   }
 
@@ -185,39 +213,39 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  Widget _buildLoginButton() {
+  Widget _buildRegisterButton() {
     return ElevatedButton(
-      onPressed: _iniciar,
+      onPressed: _registrar,
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
         backgroundColor: const Color(0xFF2897FF),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
       child: const Text(
-        "Iniciar Sesión",
+        "Registrarse",
         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
     );
   }
 
-  Widget _buildRegisterLink() {
+  Widget _buildLoginLink() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         const Text(
-          "¿No tienes una cuenta?",
+          "¿Ya tienes una cuenta?",
           style: TextStyle(color: Color(0xFF1E88E5)),
         ),
         TextButton(
           onPressed: () {
             Navigator.pushNamedAndRemoveUntil(
               context,
-              '/register',
+              '/login',
               (Route<dynamic> route) => false,
             );
           },
           child: const Text(
-            "Regístrate",
+            "Inicia sesión",
             style: TextStyle(
               color: Color(0xFF2897FF),
               fontSize: 16,
