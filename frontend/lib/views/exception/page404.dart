@@ -40,7 +40,7 @@ class _Page404State extends State<Page404> {
                 backgroundColor: const Color(0xFF2897FF),
               ),
               icon: const Icon(Icons.arrow_back),
-              label: const Text('Ir a Inicio'),
+              label: const Text('Volver'),
               ),
             ],
           ),
