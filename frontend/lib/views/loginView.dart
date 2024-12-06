@@ -4,6 +4,7 @@ import 'package:frontend/controls/backendService/FacadeServices.dart';
 import 'package:frontend/controls/util/util.dart';
 import 'package:validators/validators.dart';
 import 'package:frontend/widgets/toast/informative.dart';
+import 'package:frontend/widgets/toast/error.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -44,15 +45,13 @@ class _LoginViewState extends State<LoginView> {
         await util.saveValue('usuario', value.data['usuario']);
         await util.saveValue('external', value.data['external']);
         InformativeToast.show("BIENVENIDO ${value.data['usuario']}");
-        // final SnackBar msg = SnackBar(content: Text("BIENVENIDO ${value.data['usuario']}"));
-        // ScaffoldMessenger.of(context).showSnackBar(msg);
         Navigator.pushNamedAndRemoveUntil(
           context,
           '/home',
           (Route<dynamic> route) => false,
         );
       } else {
-        InformativeToast.show(value.msg);
+        ErrorToast.show(value.msg);
       }
     } else {
       log("Errores");
@@ -78,71 +77,56 @@ class _LoginViewState extends State<LoginView> {
   Widget _buildBackground() {
     return Container(
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF42A5F5),
-            Color(0xFF478DE0),
-            Color.fromARGB(255, 124, 158, 206),
-            Color.fromARGB(255, 183, 189, 203),
-          ],
-        ),
-        // image: DecorationImage(
-        //   image: AssetImage('assets/fondo.png'),
-        //   fit: BoxFit.scaleDown,
-        //   alignment: Alignment.topCenter,
-        // ),
+        color: Colors.white, // Fondo blanco
       ),
-      
     );
   }
 
   Widget _buildForm() {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 50),
       child: Center(
         child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: Colors.white.withOpacity(0.4),
-            ),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  const Text(
-                    "PressureCare",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 30,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                const Text(
+                  "PressureCare",
+                  style: TextStyle(
+                    color: Color(0xFF1E88E5),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.25,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/fondo.png'),
+                      fit: BoxFit.contain,
+                      alignment: Alignment.center,
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    "Inicio de Sesión",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 20),
-                  _buildEmailField(),
-                  const SizedBox(height: 20),
-                  _buildPasswordField(),
-                  const SizedBox(height: 20),
-                  _buildLoginButton(),
-                  const SizedBox(height: 20),
-                  _buildRegisterLink(),
-                ],
-              ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "Inicia sesion para continuar",
+                  style: TextStyle(color: Color(0xFF1E88E5)),
+                ),
+                const SizedBox(height: 20),
+                _buildEmailField(),
+                const SizedBox(height: 20),
+                _buildPasswordField(),
+                const SizedBox(height: 20),
+                _buildLoginButton(),
+                const SizedBox(height: 20),
+                _buildRegisterLink(),
+              ],
             ),
           ),
         ),
@@ -164,16 +148,16 @@ class _LoginViewState extends State<LoginView> {
       },
       decoration: const InputDecoration(
         labelText: "Correo",
-        prefixIcon: Icon(Icons.email, color: Color(0xFFF8F9FE)),
-        labelStyle: TextStyle(color: Color(0xFFF8F9FE)),
+        prefixIcon: Icon(Icons.email, color: Color(0xFF1E88E5)),
+        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
         enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFFF8F9FE)),
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
         ),
         focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFFF8F9FE)),
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
         ),
       ),
-      style: const TextStyle(color: Color(0xFFF8F9FE)),
+      style: const TextStyle(color: Colors.blue),
     );
   }
 
@@ -189,16 +173,16 @@ class _LoginViewState extends State<LoginView> {
       },
       decoration: const InputDecoration(
         labelText: "Clave",
-        prefixIcon: Icon(Icons.lock, color: Color(0xFFF8F9FE)),
-        labelStyle: TextStyle(color: Color(0xFFF8F9FE)),
+        prefixIcon: Icon(Icons.lock, color: Color(0xFF1E88E5)),
+        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
         enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFFF8F9FE)),
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
         ),
         focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFFF8F9FE)),
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
         ),
       ),
-      style: const TextStyle(color: Color(0xFFF8F9FE)),
+      style: const TextStyle(color: Colors.blue),
     );
   }
 
@@ -223,7 +207,7 @@ class _LoginViewState extends State<LoginView> {
       children: <Widget>[
         const Text(
           "¿No tienes una cuenta?",
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Color(0xFF1E88E5)),
         ),
         TextButton(
           onPressed: () {
@@ -236,11 +220,10 @@ class _LoginViewState extends State<LoginView> {
           child: const Text(
             "Regístrate",
             style: TextStyle(
-              color: Colors.blue,
+              color: Color(0xFF2897FF),
               fontSize: 16,
-              fontWeight: FontWeight.bold,
               decoration: TextDecoration.underline,
-              decorationColor: Colors.blue,
+              decorationColor: Color(0xFF2897FF),
             ),
           ),
         ),
