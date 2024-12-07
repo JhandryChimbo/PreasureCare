@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:frontend/controls/backendService/FacadeServices.dart';
-import 'package:frontend/controls/util/util.dart';
+import 'package:frontend/widgets/toast/error.dart';
 import 'package:validators/validators.dart';
 import 'package:frontend/widgets/toast/informative.dart';
 
@@ -17,6 +17,8 @@ class _RegisterViewState extends State<RegisterView> {
   final TextEditingController correoControl = TextEditingController();
   final TextEditingController claveControl = TextEditingController();
   final TextEditingController nombreControl = TextEditingController();
+  final TextEditingController apellidoControl = TextEditingController();
+  final TextEditingController fechaNacControl = TextEditingController();
   bool _isLoading = false;
 
   Future<void> _registrar() async {
@@ -29,31 +31,28 @@ class _RegisterViewState extends State<RegisterView> {
       Map<String, String> mapa = {
         "correo": correoControl.text,
         "clave": claveControl.text,
-        "nombre": nombreControl.text
+        "nombres": nombreControl.text,
+        "apellidos": apellidoControl.text,
+        "fecha_nacimiento": fechaNacControl.text,
       };
       log(mapa.toString());
 
-      final value = await servicio.login(mapa);
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (value.code == 200) {
-        log(value.data['token']);
-        log(value.data['usuario']);
-        Util util = Util();
-        await util.saveValue('token', value.data['token']);
-        await util.saveValue('usuario', value.data['usuario']);
-        await util.saveValue('external', value.data['external']);
-        InformativeToast.show("BIENVENIDO ${value.data['usuario']}");
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/home',
-          (Route<dynamic> route) => false,
-        );
-      } else {
-        InformativeToast.show(value.msg);
-      }
+      servicio.register(mapa).then((value) async {
+          try {
+            if (value.code == 200) {
+              InformativeToast.show("Cuenta Creada correctamente");
+              Navigator.pushReplacementNamed(context, '/home');
+            } else {
+              final SnackBar msg =
+                  SnackBar(content: Text("Error ${value.msg}"));
+              ScaffoldMessenger.of(context).showSnackBar(msg);
+            }
+          } catch (error) {
+            ErrorToast.show("Error durante la creación de la cuenta");
+          }
+        }).catchError((error) {
+          ErrorToast.show("Error durante la creación de la cuenta: $error");
+        });
     } else {
       log("Errores");
     }
@@ -122,6 +121,10 @@ class _RegisterViewState extends State<RegisterView> {
                 const SizedBox(height: 20),
                 _buildNameField(),
                 const SizedBox(height: 20),
+                _buildSurnameField(),
+                const SizedBox(height: 20),
+                _buildBirthDateField(),
+                const SizedBox(height: 20),
                 _buildEmailField(),
                 const SizedBox(height: 20),
                 _buildPasswordField(),
@@ -160,6 +163,70 @@ class _RegisterViewState extends State<RegisterView> {
       style: const TextStyle(color: Colors.blue),
     );
   }
+
+  Widget _buildSurnameField() {
+    return TextFormField(
+      controller: apellidoControl,
+      validator: (value) {
+        if (value!.isEmpty) {
+          return "Debe ingresar un apellido";
+        }
+        return null;
+      },
+      decoration: const InputDecoration(
+        labelText: "Apellido",
+        prefixIcon: Icon(Icons.person, color: Color(0xFF1E88E5)),
+        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+      ),
+      style: const TextStyle(color: Colors.blue),
+    );
+  }
+
+Widget _buildBirthDateField() {
+  return TextFormField(
+    controller: fechaNacControl,
+    readOnly: true,
+    onTap: () async {
+      DateTime? pickedDate = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(1900),
+        lastDate: DateTime.now(),
+      );
+
+      if (pickedDate != null) {
+        setState(() {
+          fechaNacControl.text = "${pickedDate.toLocal()}".split(' ')[0];
+        });
+      }
+    },
+    validator: (value) {
+      if (value!.isEmpty) {
+        return "Debe ingresar una fecha de nacimiento";
+      }
+      return null;
+    },
+    decoration: const InputDecoration(
+      labelText: "Fecha de Nacimiento",
+      prefixIcon: Icon(Icons.calendar_today, color: Color(0xFF1E88E5)),
+      labelStyle: TextStyle(color: Color(0xFF1E88E5)),
+      enabledBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: Color(0xFF1E88E5)),
+      ),
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: Color(0xFF1E88E5)),
+      ),
+    ),
+    style: const TextStyle(color: Colors.blue),
+  );
+}
+
 
   Widget _buildEmailField() {
     return TextFormField(
