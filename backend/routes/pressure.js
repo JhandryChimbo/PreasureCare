@@ -37,7 +37,7 @@ router.post("/admin/rol/save", rolControl.crear);
 //PERSONA
 router.get("/admin/persona", auth.authControl, personaControl.listar);
 router.get("/admin/persona/:external", auth.authAdministrador, personaControl.listarPorId);
-router.post("/admin/persona/save", auth.authAdministrador, personaControl.crear);
+router.post("/admin/persona/save", usuarioValidator.crearUsuario ,auth.authAdministrador, personaControl.crear);
 router.post("/persona/save", usuarioValidator.crearUsuario, personaControl.crearUsuario);
 router.put("/admin/persona/update/:external", auth.authAdministrador, personaControl.actualizar);
 router.put("/admin/persona/estado/:external", auth.authAdministrador, personaControl.actualizarEstado);
