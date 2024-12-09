@@ -20,6 +20,7 @@ class _LoginViewState extends State<LoginView> {
   bool _isLoading = false;
 
   Future<void> _iniciar() async {
+    FocusScope.of(context).unfocus(); // Cierra el teclado
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
@@ -61,6 +62,7 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
           _buildBackground(),
@@ -77,57 +79,54 @@ class _LoginViewState extends State<LoginView> {
   Widget _buildBackground() {
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white, // Fondo blanco
+        color: Colors.white,
       ),
     );
   }
 
   Widget _buildForm() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 50),
-      child: Center(
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                const Text(
-                  "PressureCare",
-                  style: TextStyle(
-                    color: Color(0xFF1E88E5),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30,
-                  ),
-                  textAlign: TextAlign.center,
+    return Center(
+      child: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              const Text(
+                "PressureCare",
+                style: TextStyle(
+                  color: Color(0xFF1E88E5),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 30,
                 ),
-                const SizedBox(height: 20),
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.25,
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/fondo.png'),
-                      fit: BoxFit.contain,
-                      alignment: Alignment.center,
-                    ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              Container(
+                height: MediaQuery.of(context).size.height * 0.25,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/fondo.png'),
+                    fit: BoxFit.contain,
+                    alignment: Alignment.center,
                   ),
                 ),
-                const SizedBox(height: 10),
-                const Text(
-                  "Inicia sesion para continuar",
-                  style: TextStyle(color: Color(0xFF1E88E5)),
-                ),
-                const SizedBox(height: 20),
-                _buildEmailField(),
-                const SizedBox(height: 20),
-                _buildPasswordField(),
-                const SizedBox(height: 20),
-                _buildLoginButton(),
-                const SizedBox(height: 20),
-                _buildRegisterLink(),
-              ],
-            ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                "Inicia sesion para continuar",
+                style: TextStyle(color: Color(0xFF1E88E5)),
+              ),
+              const SizedBox(height: 20),
+              _buildEmailField(),
+              const SizedBox(height: 20),
+              _buildPasswordField(),
+              const SizedBox(height: 20),
+              _buildLoginButton(),
+              const SizedBox(height: 20),
+              _buildRegisterLink(),
+            ],
           ),
         ),
       ),
