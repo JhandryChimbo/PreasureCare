@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginView(),
         '/register': (context) => const RegisterView(),
-        '/home': (context) => HomeView(),
+        '/home': (context) => const HomeView(),
       },
       onGenerateRoute: (settings) {
         return MaterialPageRoute(builder: (context) => const Page404());
