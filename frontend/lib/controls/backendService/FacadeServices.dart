@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:frontend/controls/backendService/GenericAnswer.dart';
 import 'package:frontend/controls/backendService/model/register.dart';
 import 'package:frontend/controls/conexion.dart';
 import 'package:frontend/controls/backendService/model/login.dart';
@@ -57,5 +58,31 @@ class FacadeServices {
     }
 
     return registerResponse;
+  }
+
+  Future<GenericAnswer> historial() async {
+    const Map<String, String> headers = {"Content-Type": "application/json"};
+    const String url = '${Conexion.URL}/persona/historial';
+    final uri = Uri.parse(url);
+    GenericAnswer genericAnswer = GenericAnswer(msg: '', code: 0, data: {});
+
+    try {
+      final response = await http.get(uri, headers: headers);
+      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        genericAnswer = GenericAnswer(msg: responseBody['msg'], code: responseBody['code'], data: responseBody['data']);
+      } else {
+        genericAnswer = GenericAnswer(
+          msg: responseBody.containsKey('msg') ? responseBody['msg'] : "Error desconocido",
+          code: response.statusCode,
+          data: responseBody['data'] ?? {},
+        );
+      }
+    } catch (e) {
+      genericAnswer = GenericAnswer(msg: "Error Inesperado", code: 500, data: {});
+    }
+
+    return genericAnswer;
   }
 }
