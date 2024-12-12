@@ -3,6 +3,16 @@ const { rol } = require("../models");
 const uuid = require("uuid");
 
 class RolControl {
+
+    /**
+     * Listar roles.
+     * 
+     * Este método obtiene una lista de roles desde la base de datos y la devuelve en la respuesta.
+     * 
+     * @param {Object} req - El objeto de solicitud HTTP.
+     * @param {Object} res - El objeto de respuesta HTTP.
+     * @returns {Promise<void>} - Una promesa que se resuelve cuando la operación de listado se completa.
+     */
     async listar(req, res) {
         try {
             const data = await rol.findAll({
@@ -14,7 +24,17 @@ class RolControl {
         }
     }
 
-    async crear(req, res) {
+    
+    /**
+     * Crea un nuevo rol en el sistema.
+     *
+     * @param {Object} req - Objeto de solicitud HTTP.
+     * @param {Object} req.body - Cuerpo de la solicitud HTTP.
+     * @param {string} req.body.nombre - Nombre del rol a crear.
+     * @param {Object} res - Objeto de respuesta HTTP.
+     * @returns {Promise<void>} - Devuelve una promesa que resuelve en una respuesta HTTP.
+     */
+    async crear(req, res) {``
         const { nombre } = req.body;
         if (!nombre) {
             return res.status(400).json({ msg: "Faltan datos", code: 400 });

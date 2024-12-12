@@ -3,6 +3,15 @@ const { medicacion, sequelize } = require("../models");
 const { v4: uuidv4 } = require("uuid");
 
 class MedicacionControl {
+    /**
+     * Listar todas las medicaciones.
+     * 
+     * Este método obtiene una lista de todas las medicaciones disponibles en la base de datos.
+     * 
+     * @param {Object} req - Objeto de solicitud HTTP.
+     * @param {Object} res - Objeto de respuesta HTTP.
+     * @returns {Promise<void>} - Devuelve una promesa que resuelve con una respuesta HTTP.
+     */
     async listar(req, res) {
         try {
             const data = await medicacion.findAll({
@@ -14,6 +23,19 @@ class MedicacionControl {
         }
     }
 
+    /**
+     * Crea una nueva medicación.
+     * 
+     * @param {Object} req - Objeto de solicitud HTTP.
+     * @param {Object} req.body - Cuerpo de la solicitud que contiene los datos de la medicación.
+     * @param {string} req.body.nombre - Nombre del paciente.
+     * @param {string} req.body.medicamento - Nombre del medicamento.
+     * @param {string} req.body.dosis - Dosis del medicamento.
+     * @param {string} req.body.recomendacion - Recomendaciones adicionales.
+     * @param {Object} res - Objeto de respuesta HTTP.
+     * 
+     * @returns {Promise<void>} Responde con un estado HTTP y un mensaje JSON.
+     */
     async crear(req, res) {
         const { nombre, medicamento, dosis, recomendacion } = req.body;
         if (!nombre || !medicamento || !dosis || !recomendacion) {
@@ -31,6 +53,23 @@ class MedicacionControl {
         }
     }
 
+    /**
+     * Actualiza la información de una medicación existente.
+     *
+     * @async
+     * @function actualizar
+     * @param {Object} req - Objeto de solicitud HTTP.
+     * @param {Object} req.params - Parámetros de la solicitud.
+     * @param {string} req.params.external - ID externo de la medicación a actualizar.
+     * @param {Object} req.body - Cuerpo de la solicitud HTTP.
+     * @param {string} req.body.nombre - Nombre de la medicación.
+     * @param {string} req.body.medicamento - Tipo de medicamento.
+     * @param {string} req.body.dosis - Dosis del medicamento.
+     * @param {string} req.body.recomendacion - Recomendaciones adicionales.
+     * @param {Object} res - Objeto de respuesta HTTP.
+     * @returns {Promise<void>} - Devuelve una promesa que se resuelve cuando la operación ha finalizado.
+     * @throws {Error} - Lanza un error si ocurre un problema durante la actualización.
+     */
     async actualizar(req, res) {
         const { external } = req.params;
         const { nombre, medicamento, dosis, recomendacion } = req.body;
