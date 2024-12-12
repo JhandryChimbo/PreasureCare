@@ -7,6 +7,24 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 
 class CuentaControl {
+    /**
+     * Maneja el inicio de sesión del usuario validando las credenciales y generando un token JWT.
+     * 
+     * @async
+     * @function login
+     * @param {Object} req - Objeto de solicitud de Express.
+     * @param {Object} req.body - El cuerpo de la solicitud.
+     * @param {string} req.body.correo - El correo electrónico del usuario.
+     * @param {string} req.body.clave - La contraseña del usuario.
+     * @param {Object} res - Objeto de respuesta de Express.
+     * @returns {Object} Respuesta JSON con el código de estado y el mensaje.
+     * 
+     * @description
+     * Este método valida el correo electrónico y la contraseña del usuario, verifica si la cuenta está activa,
+     * y genera un token JWT si las credenciales son correctas. Incluye el rol del usuario y otra información
+     * relevante en la carga útil del token. Si ocurre algún error, devuelve un código de estado HTTP apropiado
+     * y un mensaje de error.
+     */
     async login(req, res) {
         const { correo, clave } = req.body;
         if (!correo || !clave) {

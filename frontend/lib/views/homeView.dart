@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class HomeView extends StatefulWidget {
-  const HomeView({Key? key}) : super(key: key);
+  const HomeView({super.key});
 
   @override
   _HomeViewState createState() => _HomeViewState();
@@ -13,7 +13,7 @@ class _HomeViewState extends State<HomeView> {
   final TextEditingController sistolicaController = TextEditingController();
   final TextEditingController diastolicaController = TextEditingController();
 
-  List<Map<String, String>> _historial = [];
+  final List<Map<String, String>> _historial = [];
   String _ultimaPresion = 'N/A';
 
   @override
