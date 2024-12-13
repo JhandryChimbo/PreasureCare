@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+const bindController = require('../middleware/bindController');
 
 const auth = require('../middleware/auth');
 
@@ -16,7 +17,7 @@ let personaControl = new personaC();
 
 const presionC = require("../app/controls/presionControl");
 const presionValidator = require('../validators/presionValidator');
-let presionControl = new presionC();
+let presionControl = bindController(new presionC());
 
 const medicacionC = require("../app/controls/medicacionControl");
 const medicacionValidator = require('../validators/medicacionValidator');
