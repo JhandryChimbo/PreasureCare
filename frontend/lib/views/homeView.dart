@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/controls/util/util.dart';
+import 'package:frontend/widgets/buttons/button.dart';
+import 'package:frontend/controls/backendService/FacadeServices.dart';
 import 'package:intl/intl.dart';
 
 class HomeView extends StatefulWidget {
@@ -14,7 +17,40 @@ class _HomeViewState extends State<HomeView> {
   final TextEditingController diastolicaController = TextEditingController();
 
   final List<Map<String, String>> _historial = [];
-  String _ultimaPresion = 'N/A';
+  String _ultimaPresion = "N/A";
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUltimaPresion();
+  }
+
+  Future<void> _fetchUltimaPresion() async {
+    try {
+      final String? idPersona = await Util().getValue('external');
+      final facadeServices = FacadeServices();
+      final ultimaPresion = await facadeServices.ultimaPresion(idPersona!);
+
+      if (ultimaPresion.data['presion'] != null) {
+        final presion = ultimaPresion.data['presion'] as List<dynamic>;
+        if (presion.isNotEmpty) {
+          final sistolica = presion[0]['sistolica'] as int;
+          final diastolica = presion[0]['diastolica'] as int;
+          setState(() {
+            _ultimaPresion = 'Ultimo registro: $sistolica/$diastolica';
+          });
+          return;
+        }
+      }
+      setState(() {
+        _ultimaPresion = 'No se encontró información de presión';
+      });
+    } catch (e) {
+      setState(() {
+        _ultimaPresion = 'Error al obtener la última presión';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,17 +58,21 @@ class _HomeViewState extends State<HomeView> {
       appBar: AppBar(
         title: const Text('Ingreso de Presión Arterial'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            _buildUltimaPresion(),
-            const SizedBox(height: 16),
-            _buildForm(),
-            const SizedBox(height: 16),
-            _buildHistorial(),
-          ],
-        ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                _buildUltimaPresion(),
+                const SizedBox(height: 16),
+                _buildForm(),
+                const SizedBox(height: 16),
+                _buildHistorial(),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -73,7 +113,8 @@ class _HomeViewState extends State<HomeView> {
             },
           ),
           const SizedBox(height: 16),
-          _buildCalcularButton(),
+          ConfirmButton(
+              text: "Registrar Presión", onPressed: _fetchUltimaPresion),
         ],
       ),
     );
@@ -94,21 +135,6 @@ class _HomeViewState extends State<HomeView> {
         border: const OutlineInputBorder(),
       ),
       validator: validator,
-    );
-  }
-
-  Widget _buildCalcularButton() {
-    return ElevatedButton(
-      onPressed: _calcularMedicacion,
-      style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: const Color(0xFF2897FF),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-      child: const Text(
-        "Calcular Medicación",
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-      ),
     );
   }
 
@@ -148,7 +174,8 @@ class _HomeViewState extends State<HomeView> {
     final diastolica = int.tryParse(diastolicaController.text);
 
     if (sistolica == null || diastolica == null) {
-      _showDialog('Error', 'Por favor, ingresa valores válidos para la presión arterial.');
+      _showDialog('Error',
+          'Por favor, ingresa valores válidos para la presión arterial.');
       return;
     }
 
@@ -160,13 +187,19 @@ class _HomeViewState extends State<HomeView> {
       recomendacion = 'No es necesario medicación en este caso.';
     } else if (sistolica >= 120 && sistolica < 130 && diastolica < 80) {
       medicacion = 'Presión elevada. Monitorear regularmente.';
-      recomendacion = 'Es recomendable seguir una dieta saludable, evitar el exceso de sal, y hacer ejercicio regularmente. Consulta a tu médico si es necesario.';
-    } else if (sistolica >= 130 && sistolica < 140 || diastolica >= 80 && diastolica < 90) {
-      medicacion = 'Hipertensión en etapa 1. Considera consultar con un médico.';
-      recomendacion = 'Tu médico puede recomendarte cambios en el estilo de vida, y en algunos casos, medicamentos antihipertensivos como inhibidores de la ECA, diuréticos, o bloqueadores de los canales de calcio.';
+      recomendacion =
+          'Es recomendable seguir una dieta saludable, evitar el exceso de sal, y hacer ejercicio regularmente. Consulta a tu médico si es necesario.';
+    } else if (sistolica >= 130 && sistolica < 140 ||
+        diastolica >= 80 && diastolica < 90) {
+      medicacion =
+          'Hipertensión en etapa 1. Considera consultar con un médico.';
+      recomendacion =
+          'Tu médico puede recomendarte cambios en el estilo de vida, y en algunos casos, medicamentos antihipertensivos como inhibidores de la ECA, diuréticos, o bloqueadores de los canales de calcio.';
     } else if (sistolica >= 140 || diastolica >= 90) {
-      medicacion = 'Hipertensión en etapa 2. Consulta a un médico para medicación.';
-      recomendacion = 'Es probable que necesites medicamentos antihipertensivos. Es importante que consultes a tu médico para recibir el tratamiento adecuado. Podría incluir medicamentos como betabloqueantes, inhibidores de la ECA o diuréticos.';
+      medicacion =
+          'Hipertensión en etapa 2. Consulta a un médico para medicación.';
+      recomendacion =
+          'Es probable que necesites medicamentos antihipertensivos. Es importante que consultes a tu médico para recibir el tratamiento adecuado. Podría incluir medicamentos como betabloqueantes, inhibidores de la ECA o diuréticos.';
     } else {
       medicacion = 'Por favor, verifica los valores ingresados.';
       recomendacion = '';
@@ -175,8 +208,10 @@ class _HomeViewState extends State<HomeView> {
     String fechaHora = DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
 
     setState(() {
-      _ultimaPresion = 'Última Presión: $sistolica / $diastolica ($fechaHora)';
-      _historial.insert(0, {'presion': '$sistolica / $diastolica', 'fecha': fechaHora});
+      _ultimaPresion =
+          'Última Presión: $sistolica / $diastolica ($fechaHora)';
+      _historial.insert(
+          0, {'presion': '$sistolica / $diastolica', 'fecha': fechaHora});
     });
 
     sistolicaController.clear();
@@ -185,7 +220,8 @@ class _HomeViewState extends State<HomeView> {
     _showDialog('Resultado', medicacion, recomendacion);
   }
 
-  void _showDialog(String title, String medicacion, [String recomendacion = '']) {
+  void _showDialog(String title, String medicacion,
+      [String recomendacion = '']) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -195,7 +231,7 @@ class _HomeViewState extends State<HomeView> {
             child: ListBody(
               children: [
                 Text(medicacion),
-                if (recomendacion.isNotEmpty) 
+                if (recomendacion.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
