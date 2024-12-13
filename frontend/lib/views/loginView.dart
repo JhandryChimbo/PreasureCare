@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:frontend/controls/backendService/FacadeServices.dart';
 import 'package:frontend/controls/util/util.dart';
+import 'package:frontend/widgets/buttons/button.dart';
 import 'package:validators/validators.dart';
 import 'package:frontend/widgets/toast/informative.dart';
 import 'package:frontend/widgets/toast/error.dart';
@@ -62,16 +63,19 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // resizeToAvoidBottomInset: true,
-      body: Stack(
-        children: [
-          _buildBackground(),
-          _buildForm(),
-          if (_isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
-        ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            children: [
+              _buildBackground(),
+              _buildForm(constraints),
+              if (_isLoading)
+                const Center(
+                  child: CircularProgressIndicator(),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -84,49 +88,54 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  Widget _buildForm() {
+  Widget _buildForm(BoxConstraints constraints) {
     return Center(
       child: SingleChildScrollView(
         child: Form(
           key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              const Text(
-                "PressureCare",
-                style: TextStyle(
-                  color: Color(0xFF1E88E5),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 30,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: constraints.maxWidth * 0.1,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                const Text(
+                  "PressureCare",
+                  style: TextStyle(
+                    color: Color(0xFF1E88E5),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              Container(
-                height: MediaQuery.of(context).size.height * 0.25,
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/fondo.png'),
-                    fit: BoxFit.contain,
-                    alignment: Alignment.center,
+                const SizedBox(height: 20),
+                Container(
+                  height: constraints.maxHeight * 0.25,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/fondo.png'),
+                      fit: BoxFit.contain,
+                      alignment: Alignment.center,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                "Inicia sesion para continuar",
-                style: TextStyle(color: Color(0xFF1E88E5)),
-              ),
-              const SizedBox(height: 20),
-              _buildEmailField(),
-              const SizedBox(height: 20),
-              _buildPasswordField(),
-              const SizedBox(height: 20),
-              _buildLoginButton(),
-              const SizedBox(height: 20),
-              _buildRegisterLink(),
-            ],
+                const SizedBox(height: 10),
+                const Text(
+                  "Inicia sesion para continuar",
+                  style: TextStyle(color: Color(0xFF1E88E5)),
+                ),
+                const SizedBox(height: 20),
+                _buildEmailField(),
+                const SizedBox(height: 20),
+                _buildPasswordField(),
+                const SizedBox(height: 20),
+                ConfirmButton(text: "Iniciar Sesión", onPressed: _iniciar),
+                const SizedBox(height: 20),
+                _buildRegisterLink(),
+              ],
+            ),
           ),
         ),
       ),
@@ -185,20 +194,6 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  Widget _buildLoginButton() {
-    return ElevatedButton(
-      onPressed: _iniciar,
-      style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: const Color(0xFF2897FF),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-      child: const Text(
-        "Iniciar Sesión",
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
 
   Widget _buildRegisterLink() {
     return Row(
