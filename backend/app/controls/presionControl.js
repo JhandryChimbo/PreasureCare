@@ -85,7 +85,7 @@ class presionControl {
         return res.status(400).json({ msg: "Error al registrar la presion", code: 400 });
       }
 
-      const medicacionAsignada = await this.asignarMedicacion(sistolica, diastolica, transaction);
+      const medicacionAsignada = await this.asignarMedicacion.bind(this)(sistolica, diastolica, transaction);
       if (!medicacionAsignada) {
         await transaction.rollback();
         return res.status(404).json({
@@ -114,14 +114,14 @@ class presionControl {
     }
   }
 
-  async asignarMedicacion(sistolica, diastolica, transaction) {
+  asignarMedicacion = async (sistolica, diastolica, transaction) => {
     const medicacionRangos = [
       { rango: [180, 120], nombre: "Crisis hipertensiva" },
       { rango: [140, 90], nombre: "Hipertension en etapa 2" },
       { rango: [130, 80], nombre: "Hipertension en etapa 1" },
       { rango: [120, 79], nombre: "Elevada" },
     ];
-
+  
     let nombreMedicacion = "Normal";
     for (const { rango, nombre } of medicacionRangos) {
       if (sistolica >= rango[0] || diastolica >= rango[1]) {
@@ -129,15 +129,15 @@ class presionControl {
         break;
       }
     }
-
+  
     const medicacionAsignada = await medicacion.findOne({
       where: { nombre: nombreMedicacion },
       attributes: ["nombre", "medicamento", "dosis", "recomendacion", ["external_id", "id"]],
       transaction,
     });
-
+  
     return medicacionAsignada;
-  }
+  };  
 }
 
 module.exports = presionControl;
