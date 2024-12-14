@@ -19,6 +19,7 @@ class _LoginViewState extends State<LoginView> {
   final TextEditingController correoControl = TextEditingController();
   final TextEditingController claveControl = TextEditingController();
   bool _isLoading = false;
+  bool _obscureText = true;
 
   Future<void> _iniciar() async {
     FocusScope.of(context).unfocus(); // Cierra el teclado
@@ -171,7 +172,7 @@ class _LoginViewState extends State<LoginView> {
 
   Widget _buildPasswordField() {
     return TextFormField(
-      obscureText: true,
+      obscureText: _obscureText,
       controller: claveControl,
       validator: (value) {
         if (value!.isEmpty) {
@@ -179,21 +180,31 @@ class _LoginViewState extends State<LoginView> {
         }
         return null;
       },
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         labelText: "Clave",
-        prefixIcon: Icon(Icons.lock, color: Color(0xFF1E88E5)),
-        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
-        enabledBorder: UnderlineInputBorder(
+        prefixIcon: const Icon(Icons.lock, color: Color(0xFF1E88E5)),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscureText ? Icons.visibility : Icons.visibility_off,
+            color: const Color(0xFF1E88E5),
+          ),
+          onPressed: () {
+            setState(() {
+              _obscureText = !_obscureText;
+            });
+          },
+        ),
+        labelStyle: const TextStyle(color: Color(0xFF1E88E5)),
+        enabledBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Color(0xFF1E88E5)),
         ),
-        focusedBorder: UnderlineInputBorder(
+        focusedBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Color(0xFF1E88E5)),
         ),
       ),
       style: const TextStyle(color: Colors.blue),
     );
   }
-
 
   Widget _buildRegisterLink() {
     return Row(
