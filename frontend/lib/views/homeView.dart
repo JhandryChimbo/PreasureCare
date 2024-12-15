@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/controls/util/util.dart';
 import 'package:frontend/widgets/buttons/button.dart';
+import 'package:frontend/widgets/toast/error.dart';
 import 'package:frontend/controls/backendService/FacadeServices.dart';
 import 'package:intl/intl.dart';
 
@@ -16,13 +17,14 @@ class _HomeViewState extends State<HomeView> {
   final TextEditingController sistolicaController = TextEditingController();
   final TextEditingController diastolicaController = TextEditingController();
 
-  final List<Map<String, String>> _historial = [];
+  final Map<String, dynamic> _historial = {};
   String _ultimaPresion = "N/A";
 
   @override
   void initState() {
     super.initState();
     _fetchUltimaPresion();
+    _fetchHistorial();
   }
 
   Future<void> _fetchUltimaPresion() async {
@@ -52,6 +54,85 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
+  Future<void> _registrarPresion() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final sistolica = int.tryParse(sistolicaController.text);
+    final diastolica = int.tryParse(diastolicaController.text);
+    final idPersona = await Util().getValue('external');
+
+    if (sistolica == null || diastolica == null || idPersona == null) {
+      ErrorToast.show('Valores inválidos o usuario no identificado.');
+      return;
+    }
+
+    final now = DateTime.now();
+    final fecha = DateFormat('yyyy-MM-dd').format(now);
+    final hora = DateFormat('HH:mm:ss').format(now);
+
+    Map<String, dynamic> presion = {
+      'fecha': fecha,
+      'hora': hora,
+      'sistolica': sistolica,
+      'diastolica': diastolica,
+      'id_persona': idPersona,
+    };
+
+    try {
+      FacadeServices facadeServices = FacadeServices();
+      final respuesta = await facadeServices.registrarPresion(presion);
+
+      if (respuesta.code == 201) {
+        final Map<String, dynamic> medicacion = respuesta.data['medicacion'];
+
+        setState(() {
+          _ultimaPresion = 'Ultimo registro: $sistolica/$diastolica';
+          _fetchHistorial();
+        });
+
+        _showDialog(
+          'Medicamento Recomendado',
+          'Nombre: ${medicacion['nombre']}\n'
+              'Medicamento: ${medicacion['medicamento']}\n'
+              'Dosis: ${medicacion['dosis']}\n'
+              'Recomendación: ${medicacion['recomendacion']}',
+        );
+      } else {
+        ErrorToast.show('No se pudo registrar la presión.');
+      }
+    } catch (e) {
+      ErrorToast.show('Hubo un problema al registrar la presión.');
+    }
+
+    sistolicaController.clear();
+    diastolicaController.clear();
+  }
+
+  Future<void> _fetchHistorial() async {
+    final idPersona = await Util().getValue('external');
+    final facadeServices = FacadeServices();
+    final historial = await facadeServices.historialDia(idPersona!);
+
+    if (historial.code == 200) {
+      final presiones = historial.data['presion'] as List<dynamic>;
+      final Map<String, dynamic> registros = {};
+      for (final presion in presiones) {
+        final fecha = presion['fecha'] as String;
+        final hora = presion['hora'] as String;
+        final sistolica = presion['sistolica'] as int;
+        final diastolica = presion['diastolica'] as int;
+        registros['$fecha $hora'] = '$sistolica/$diastolica';
+      }
+      setState(() {
+        _historial.clear();
+        _historial.addAll(Map.fromEntries(registros.entries
+            .map((entry) => MapEntry(entry.key, entry.value))));
+      });
+    } else {
+      ErrorToast.show('No se pudo obtener el historial de presiones.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,14 +143,16 @@ class _HomeViewState extends State<HomeView> {
         builder: (context, constraints) {
           return Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                _buildUltimaPresion(),
-                const SizedBox(height: 16),
-                _buildForm(),
-                const SizedBox(height: 16),
-                _buildHistorial(),
-              ],
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildUltimaPresion(),
+                  const SizedBox(height: 16),
+                  _buildForm(),
+                  const SizedBox(height: 16),
+                  _buildHistorial(),
+                ],
+              ),
             ),
           );
         },
@@ -92,7 +175,7 @@ class _HomeViewState extends State<HomeView> {
           _buildTextField(
             controller: sistolicaController,
             labelText: 'Presión Sistólica',
-            hintText: 'Ejemplo: 120',
+            hintText: '',
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Por favor, ingresa un valor para la presión sistólica';
@@ -104,7 +187,7 @@ class _HomeViewState extends State<HomeView> {
           _buildTextField(
             controller: diastolicaController,
             labelText: 'Presión Diastólica',
-            hintText: 'Ejemplo: 80',
+            hintText: '',
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Por favor, ingresa un valor para la presión diastólica';
@@ -114,7 +197,9 @@ class _HomeViewState extends State<HomeView> {
           ),
           const SizedBox(height: 16),
           ConfirmButton(
-              text: "Registrar Presión", onPressed: _fetchUltimaPresion),
+            text: "Registrar Presión",
+            onPressed: _registrarPresion,
+          ),
         ],
       ),
     );
@@ -139,85 +224,32 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildHistorial() {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Historial de Registros',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    _fetchHistorial();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Historial de Registros',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columns: const [
+              DataColumn(label: Text('Presión')),
+              DataColumn(label: Text('Fecha y Hora')),
+            ],
+            rows: _historial.entries.map((entry) {
+              return DataRow(cells: [
+                DataCell(Text(entry.value)),
+                DataCell(Text(entry.key)),
+              ]);
+            }).toList(),
           ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: SingleChildScrollView(
-              child: DataTable(
-                columns: const [
-                  DataColumn(label: Text('Presión')),
-                  DataColumn(label: Text('Fecha y Hora')),
-                ],
-                rows: _historial.map((registro) {
-                  return DataRow(cells: [
-                    DataCell(Text(registro['presion']!)),
-                    DataCell(Text(registro['fecha']!)),
-                  ]);
-                }).toList(),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
-  }
-
-  void _calcularMedicacion() {
-    final sistolica = int.tryParse(sistolicaController.text);
-    final diastolica = int.tryParse(diastolicaController.text);
-
-    if (sistolica == null || diastolica == null) {
-      _showDialog('Error',
-          'Por favor, ingresa valores válidos para la presión arterial.');
-      return;
-    }
-
-    String medicacion = '';
-    String recomendacion = '';
-
-    if (sistolica < 120 && diastolica < 80) {
-      medicacion = 'Presión normal. Mantén un estilo de vida saludable.';
-      recomendacion = 'No es necesario medicación en este caso.';
-    } else if (sistolica >= 120 && sistolica < 130 && diastolica < 80) {
-      medicacion = 'Presión elevada. Monitorear regularmente.';
-      recomendacion =
-          'Es recomendable seguir una dieta saludable, evitar el exceso de sal, y hacer ejercicio regularmente. Consulta a tu médico si es necesario.';
-    } else if (sistolica >= 130 && sistolica < 140 ||
-        diastolica >= 80 && diastolica < 90) {
-      medicacion =
-          'Hipertensión en etapa 1. Considera consultar con un médico.';
-      recomendacion =
-          'Tu médico puede recomendarte cambios en el estilo de vida, y en algunos casos, medicamentos antihipertensivos como inhibidores de la ECA, diuréticos, o bloqueadores de los canales de calcio.';
-    } else if (sistolica >= 140 || diastolica >= 90) {
-      medicacion =
-          'Hipertensión en etapa 2. Consulta a un médico para medicación.';
-      recomendacion =
-          'Es probable que necesites medicamentos antihipertensivos. Es importante que consultes a tu médico para recibir el tratamiento adecuado. Podría incluir medicamentos como betabloqueantes, inhibidores de la ECA o diuréticos.';
-    } else {
-      medicacion = 'Por favor, verifica los valores ingresados.';
-      recomendacion = '';
-    }
-
-    String fechaHora = DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
-
-    setState(() {
-      _ultimaPresion =
-          'Última Presión: $sistolica / $diastolica ($fechaHora)';
-      _historial.insert(
-          0, {'presion': '$sistolica / $diastolica', 'fecha': fechaHora});
-    });
-
-    sistolicaController.clear();
-    diastolicaController.clear();
-
-    _showDialog('Resultado', medicacion, recomendacion);
   }
 
   void _showDialog(String title, String medicacion,
