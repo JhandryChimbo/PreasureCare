@@ -64,4 +64,8 @@ class FacadeServices {
   Future<GenericAnswer> ultimaPresion( String idPersona) async {
     return await conexion.solicitudGet('persona/presiones/ultima/$idPersona', true);
   }
+
+  Future<GenericAnswer> registrarPresion(Map<String, dynamic> presion,) async {
+    return await conexion.solicitudPost('presion/save', true, presion);
+  }
 }

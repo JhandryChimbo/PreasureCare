@@ -52,6 +52,68 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
+  Future<void> _registrarPresion() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final sistolica = int.tryParse(sistolicaController.text);
+    final diastolica = int.tryParse(diastolicaController.text);
+    final idPersona = await Util().getValue('external');
+
+    if (sistolica == null || diastolica == null || idPersona == null) {
+      _showDialog('Error', 'Valores inválidos o usuario no identificado.');
+      return;
+    }
+
+    final now = DateTime.now();
+    final fecha = DateFormat('yyyy-MM-dd').format(now);
+    final hora = DateFormat('HH:mm:ss').format(now);
+
+          Map<String, dynamic> presion = {
+        'fecha': fecha,
+        'hora': hora,
+        'sistolica': sistolica,
+        'diastolica': diastolica,
+        'id_persona': idPersona,
+      };
+
+    try {
+      FacadeServices facadeServices = FacadeServices();
+      final respuesta = await facadeServices.registrarPresion(presion);
+
+      if (respuesta.code == 201) {
+        final Map<String, dynamic> medicacion = respuesta.data['medicacion'];
+
+        setState(() {
+          _ultimaPresion = 'Ultimo registro: $sistolica/$diastolica';
+          _historial.insert(
+            0,
+            {
+              'presion': '$sistolica/$diastolica',
+              'fecha': '$fecha $hora',
+            },
+          );
+        });
+
+        _showDialog(
+          'Registro Exitoso',
+          'Presión registrada correctamente.',
+          'Medicación: ${medicacion['nombre']}\n'
+              'Medicamento: ${medicacion['medicamento']}\n'
+              'Dosis: ${medicacion['dosis']}\n'
+              'Recomendación: ${medicacion['recomendacion']}',
+        );
+      } else {
+        _showDialog('Error', 'No se pudo registrar la presión.');
+      }
+    } catch (e) {
+      _showDialog('Error', 'Hubo un problema al registrar la presión.$e');
+      print(e);
+    }
+
+    sistolicaController.clear();
+    diastolicaController.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -114,7 +176,9 @@ class _HomeViewState extends State<HomeView> {
           ),
           const SizedBox(height: 16),
           ConfirmButton(
-              text: "Registrar Presión", onPressed: _fetchUltimaPresion),
+            text: "Registrar Presión",
+            onPressed: _registrarPresion,
+          ),
         ],
       ),
     );
@@ -167,57 +231,6 @@ class _HomeViewState extends State<HomeView> {
         ],
       ),
     );
-  }
-
-  void _calcularMedicacion() {
-    final sistolica = int.tryParse(sistolicaController.text);
-    final diastolica = int.tryParse(diastolicaController.text);
-
-    if (sistolica == null || diastolica == null) {
-      _showDialog('Error',
-          'Por favor, ingresa valores válidos para la presión arterial.');
-      return;
-    }
-
-    String medicacion = '';
-    String recomendacion = '';
-
-    if (sistolica < 120 && diastolica < 80) {
-      medicacion = 'Presión normal. Mantén un estilo de vida saludable.';
-      recomendacion = 'No es necesario medicación en este caso.';
-    } else if (sistolica >= 120 && sistolica < 130 && diastolica < 80) {
-      medicacion = 'Presión elevada. Monitorear regularmente.';
-      recomendacion =
-          'Es recomendable seguir una dieta saludable, evitar el exceso de sal, y hacer ejercicio regularmente. Consulta a tu médico si es necesario.';
-    } else if (sistolica >= 130 && sistolica < 140 ||
-        diastolica >= 80 && diastolica < 90) {
-      medicacion =
-          'Hipertensión en etapa 1. Considera consultar con un médico.';
-      recomendacion =
-          'Tu médico puede recomendarte cambios en el estilo de vida, y en algunos casos, medicamentos antihipertensivos como inhibidores de la ECA, diuréticos, o bloqueadores de los canales de calcio.';
-    } else if (sistolica >= 140 || diastolica >= 90) {
-      medicacion =
-          'Hipertensión en etapa 2. Consulta a un médico para medicación.';
-      recomendacion =
-          'Es probable que necesites medicamentos antihipertensivos. Es importante que consultes a tu médico para recibir el tratamiento adecuado. Podría incluir medicamentos como betabloqueantes, inhibidores de la ECA o diuréticos.';
-    } else {
-      medicacion = 'Por favor, verifica los valores ingresados.';
-      recomendacion = '';
-    }
-
-    String fechaHora = DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
-
-    setState(() {
-      _ultimaPresion =
-          'Última Presión: $sistolica / $diastolica ($fechaHora)';
-      _historial.insert(
-          0, {'presion': '$sistolica / $diastolica', 'fecha': fechaHora});
-    });
-
-    sistolicaController.clear();
-    diastolicaController.clear();
-
-    _showDialog('Resultado', medicacion, recomendacion);
   }
 
   void _showDialog(String title, String medicacion,
