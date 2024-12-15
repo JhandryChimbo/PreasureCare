@@ -65,6 +65,12 @@ class FacadeServices {
     return await conexion.solicitudGet('persona/presiones/ultima/$idPersona', true);
   }
 
+  //Historial del dia
+  Future<GenericAnswer> historialDia(String idPersona) async {
+    return await conexion.solicitudGet('persona/presiones/$idPersona', true);
+  }
+
+  //Registrar presion
   Future<GenericAnswer> registrarPresion(Map<String, dynamic> presion,) async {
     return await conexion.solicitudPost('presion/save', true, presion);
   }

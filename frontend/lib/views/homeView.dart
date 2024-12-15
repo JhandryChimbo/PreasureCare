@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/controls/util/util.dart';
 import 'package:frontend/widgets/buttons/button.dart';
+import 'package:frontend/widgets/toast/error.dart';
 import 'package:frontend/controls/backendService/FacadeServices.dart';
 import 'package:intl/intl.dart';
 
@@ -16,13 +17,14 @@ class _HomeViewState extends State<HomeView> {
   final TextEditingController sistolicaController = TextEditingController();
   final TextEditingController diastolicaController = TextEditingController();
 
-  final List<Map<String, String>> _historial = [];
+  final Map<String, dynamic> _historial = {};
   String _ultimaPresion = "N/A";
 
   @override
   void initState() {
     super.initState();
     _fetchUltimaPresion();
+    _fetchHistorial();
   }
 
   Future<void> _fetchUltimaPresion() async {
@@ -60,7 +62,7 @@ class _HomeViewState extends State<HomeView> {
     final idPersona = await Util().getValue('external');
 
     if (sistolica == null || diastolica == null || idPersona == null) {
-      _showDialog('Error', 'Valores inválidos o usuario no identificado.');
+      ErrorToast.show('Valores inválidos o usuario no identificado.');
       return;
     }
 
@@ -68,13 +70,13 @@ class _HomeViewState extends State<HomeView> {
     final fecha = DateFormat('yyyy-MM-dd').format(now);
     final hora = DateFormat('HH:mm:ss').format(now);
 
-          Map<String, dynamic> presion = {
-        'fecha': fecha,
-        'hora': hora,
-        'sistolica': sistolica,
-        'diastolica': diastolica,
-        'id_persona': idPersona,
-      };
+    Map<String, dynamic> presion = {
+      'fecha': fecha,
+      'hora': hora,
+      'sistolica': sistolica,
+      'diastolica': diastolica,
+      'id_persona': idPersona,
+    };
 
     try {
       FacadeServices facadeServices = FacadeServices();
@@ -85,33 +87,50 @@ class _HomeViewState extends State<HomeView> {
 
         setState(() {
           _ultimaPresion = 'Ultimo registro: $sistolica/$diastolica';
-          _historial.insert(
-            0,
-            {
-              'presion': '$sistolica/$diastolica',
-              'fecha': '$fecha $hora',
-            },
-          );
+          _fetchHistorial();
         });
 
         _showDialog(
-          'Registro Exitoso',
-          'Presión registrada correctamente.',
-          'Medicación: ${medicacion['nombre']}\n'
+          'Medicamento Recomendado',
+          'Nombre: ${medicacion['nombre']}\n'
               'Medicamento: ${medicacion['medicamento']}\n'
               'Dosis: ${medicacion['dosis']}\n'
               'Recomendación: ${medicacion['recomendacion']}',
         );
       } else {
-        _showDialog('Error', 'No se pudo registrar la presión.');
+        ErrorToast.show('No se pudo registrar la presión.');
       }
     } catch (e) {
-      _showDialog('Error', 'Hubo un problema al registrar la presión.$e');
-      print(e);
+      ErrorToast.show('Hubo un problema al registrar la presión.');
     }
 
     sistolicaController.clear();
     diastolicaController.clear();
+  }
+
+  Future<void> _fetchHistorial() async {
+    final idPersona = await Util().getValue('external');
+    final facadeServices = FacadeServices();
+    final historial = await facadeServices.historialDia(idPersona!);
+
+    if (historial.code == 200) {
+      final presiones = historial.data['presion'] as List<dynamic>;
+      final Map<String, dynamic> registros = {};
+      for (final presion in presiones) {
+        final fecha = presion['fecha'] as String;
+        final hora = presion['hora'] as String;
+        final sistolica = presion['sistolica'] as int;
+        final diastolica = presion['diastolica'] as int;
+        registros['$fecha $hora'] = '$sistolica/$diastolica';
+      }
+      setState(() {
+        _historial.clear();
+        _historial.addAll(Map.fromEntries(registros.entries
+            .map((entry) => MapEntry(entry.key, entry.value))));
+      });
+    } else {
+      ErrorToast.show('No se pudo obtener el historial de presiones.');
+    }
   }
 
   @override
@@ -124,14 +143,16 @@ class _HomeViewState extends State<HomeView> {
         builder: (context, constraints) {
           return Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                _buildUltimaPresion(),
-                const SizedBox(height: 16),
-                _buildForm(),
-                const SizedBox(height: 16),
-                _buildHistorial(),
-              ],
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildUltimaPresion(),
+                  const SizedBox(height: 16),
+                  _buildForm(),
+                  const SizedBox(height: 16),
+                  _buildHistorial(),
+                ],
+              ),
             ),
           );
         },
@@ -154,7 +175,7 @@ class _HomeViewState extends State<HomeView> {
           _buildTextField(
             controller: sistolicaController,
             labelText: 'Presión Sistólica',
-            hintText: 'Ejemplo: 120',
+            hintText: '',
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Por favor, ingresa un valor para la presión sistólica';
@@ -166,7 +187,7 @@ class _HomeViewState extends State<HomeView> {
           _buildTextField(
             controller: diastolicaController,
             labelText: 'Presión Diastólica',
-            hintText: 'Ejemplo: 80',
+            hintText: '',
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Por favor, ingresa un valor para la presión diastólica';
@@ -203,33 +224,31 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildHistorial() {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Historial de Registros',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    _fetchHistorial();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Historial de Registros',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columns: const [
+              DataColumn(label: Text('Presión')),
+              DataColumn(label: Text('Fecha y Hora')),
+            ],
+            rows: _historial.entries.map((entry) {
+              return DataRow(cells: [
+                DataCell(Text(entry.value)),
+                DataCell(Text(entry.key)),
+              ]);
+            }).toList(),
           ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: SingleChildScrollView(
-              child: DataTable(
-                columns: const [
-                  DataColumn(label: Text('Presión')),
-                  DataColumn(label: Text('Fecha y Hora')),
-                ],
-                rows: _historial.map((registro) {
-                  return DataRow(cells: [
-                    DataCell(Text(registro['presion']!)),
-                    DataCell(Text(registro['fecha']!)),
-                  ]);
-                }).toList(),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
