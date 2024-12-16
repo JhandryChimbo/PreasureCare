@@ -67,7 +67,7 @@ class FacadeServices {
 
   //Historial del dia
   Future<GenericAnswer> historialDia(String idPersona) async {
-    return await conexion.solicitudGet('persona/presiones/$idPersona', true);
+    return await conexion.solicitudGet('persona/presiones/10/$idPersona', true);
   }
 
   //Registrar presion
