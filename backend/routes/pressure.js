@@ -46,6 +46,7 @@ router.put("/admin/persona/estado/:external", auth.authAdministrador, personaCon
 
 //PRESION
 router.get("/persona/presiones/:external", auth.authGeneral, personaControl.listarPresiones);
+router.get("/persona/presiones/10/:external", auth.authGeneral, personaControl.listar10Presiones);
 router.get("/persona/presiones/ultima/:external", auth.authGeneral, personaControl.listarUltimaPresion);
 router.get("/persona/historial", auth.authGeneral, personaControl.listarHistoriales);
 router.get("/presion", auth.authAdministrador, presionControl.listar);

@@ -115,6 +115,46 @@ class personaControl {
     }
   };
 
+
+  /**
+   * Listar las últimas 10 presiones de una persona.
+   *
+   * @async
+   * @function listar10Presiones
+   * @param {Object} req - Objeto de solicitud HTTP.
+   * @param {Object} req.params - Parámetros de la solicitud.
+   * @param {string} req.params.external - ID externo de la persona.
+   * @param {Object} res - Objeto de respuesta HTTP.
+   * @returns {Promise<void>} Responde con un JSON que contiene los datos de la persona y sus últimas 10 presiones, o un mensaje de error.
+   */
+  async listar10Presiones(req, res) {
+    const { external } = req.params;
+    if (!external) {
+      return res.status(400).json({ msg: "Faltan datos", code: 400 });
+    }
+    try {
+      const data = await persona.findOne({
+        where: { external_id: external },
+        include: [
+          {
+            model: models.presion,
+            as: "presion",
+            attributes: ["fecha", "hora", "sistolica", "diastolica"],
+            limit: 20,
+            order: [["fecha", "DESC"], ["hora", "DESC"]],
+          },
+        ],
+        attributes: ["nombres", "apellidos", "fecha_nacimiento"],
+      });
+      if (!data) {
+        return res.status(404).json({ msg: "Persona no encontrada", code: 404 });
+      }
+      res.status(200).json({ msg: "Persona encontrada", code: 200, data });
+    } catch (error) {
+      res.status(500).json({ msg: "Error interno del servidor", code: 500 });
+    }
+  }
+
   /**
    * Listar los historiales de presión arterial de las personas.
    * 
