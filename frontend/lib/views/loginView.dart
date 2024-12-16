@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/controls/backendService/FacadeServices.dart';
 import 'package:frontend/controls/util/util.dart';
@@ -22,7 +23,7 @@ class _LoginViewState extends State<LoginView> {
   bool _obscureText = true;
 
   Future<void> _iniciar() async {
-    FocusScope.of(context).unfocus(); // Cierra el teclado
+    FocusScope.of(context).unfocus();
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
@@ -157,7 +158,7 @@ class _LoginViewState extends State<LoginView> {
       },
       decoration: const InputDecoration(
         labelText: "Correo",
-        prefixIcon: Icon(Icons.email, color: Color(0xFF1E88E5)),
+        prefixIcon: Icon(CupertinoIcons.mail, color: Color(0xFF1E88E5)),
         labelStyle: TextStyle(color: Color(0xFF1E88E5)),
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Color(0xFF1E88E5)),
@@ -182,7 +183,7 @@ class _LoginViewState extends State<LoginView> {
       },
       decoration: InputDecoration(
         labelText: "Clave",
-        prefixIcon: const Icon(Icons.lock, color: Color(0xFF1E88E5)),
+        prefixIcon: const Icon(CupertinoIcons.lock, color: Color(0xFF1E88E5)),
         suffixIcon: IconButton(
           icon: Icon(
             _obscureText ? Icons.visibility : Icons.visibility_off,
