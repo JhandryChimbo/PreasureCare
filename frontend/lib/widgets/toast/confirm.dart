@@ -10,7 +10,7 @@ class ConfirmToast {
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 1,
-      backgroundColor: Colors.green.withOpacity(0.8),
+      backgroundColor: Colors.blue.withOpacity(0.8),
       textColor: Colors.white,
       fontSize: 13.0,
     );

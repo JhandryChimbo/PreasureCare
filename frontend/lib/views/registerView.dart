@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/controls/backendService/FacadeServices.dart';
 import 'package:frontend/widgets/toast/error.dart';
@@ -20,6 +21,7 @@ class _RegisterViewState extends State<RegisterView> {
   final TextEditingController apellidoControl = TextEditingController();
   final TextEditingController fechaNacControl = TextEditingController();
   bool _isLoading = false;
+  bool _obscureText = true;
 
   Future<void> _registrar() async {
     if (_formKey.currentState!.validate()) {
@@ -38,21 +40,20 @@ class _RegisterViewState extends State<RegisterView> {
       log(mapa.toString());
 
       servicio.register(mapa).then((value) async {
-          try {
-            if (value.code == 200) {
-              InformativeToast.show("Cuenta Creada correctamente");
-              Navigator.pushReplacementNamed(context, '/home');
-            } else {
-              final SnackBar msg =
-                  SnackBar(content: Text("Error ${value.msg}"));
-              ScaffoldMessenger.of(context).showSnackBar(msg);
-            }
-          } catch (error) {
-            ErrorToast.show("Error durante la creación de la cuenta");
+        try {
+          if (value.code == 200) {
+            InformativeToast.show("Cuenta Creada correctamente");
+            Navigator.pushReplacementNamed(context, '/home');
+          } else {
+            final SnackBar msg = SnackBar(content: Text("Error ${value.msg}"));
+            ScaffoldMessenger.of(context).showSnackBar(msg);
           }
-        }).catchError((error) {
-          ErrorToast.show("Error durante la creación de la cuenta: $error");
-        });
+        } catch (error) {
+          ErrorToast.show("Error durante la creación de la cuenta");
+        }
+      }).catchError((error) {
+        ErrorToast.show("Error durante la creación de la cuenta: $error");
+      });
     } else {
       log("Errores");
     }
@@ -61,15 +62,19 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          _buildBackground(),
-          _buildForm(),
-          if (_isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
-        ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            children: [
+              _buildBackground(),
+              _buildForm(constraints),
+              if (_isLoading)
+                const Center(
+                  child: CircularProgressIndicator(),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -82,57 +87,54 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
-  Widget _buildForm() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 50),
+  Widget _buildForm(BoxConstraints constraints) {
+    double horizontalPadding = constraints.maxWidth * 0.1;
+    if (constraints.maxWidth > 600) {
+      horizontalPadding = constraints.maxWidth * 0.2;
+    }
+
+    return SafeArea(
       child: Center(
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                const Text(
-                  "PressureCare",
-                  style: TextStyle(
-                    color: Color(0xFF1E88E5),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.25,
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/fondo.png'),
-                      fit: BoxFit.contain,
-                      alignment: Alignment.center,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  const Text(
+                    "PressureCare",
+                    style: TextStyle(
+                      color: Color(0xFF1E88E5),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 30,
                     ),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  "Regístrate para continuar",
-                  style: TextStyle(color: Color(0xFF1E88E5)),
-                ),
-                const SizedBox(height: 20),
-                _buildNameField(),
-                const SizedBox(height: 20),
-                _buildSurnameField(),
-                const SizedBox(height: 20),
-                _buildBirthDateField(),
-                const SizedBox(height: 20),
-                _buildEmailField(),
-                const SizedBox(height: 20),
-                _buildPasswordField(),
-                const SizedBox(height: 20),
-                _buildRegisterButton(),
-                const SizedBox(height: 20),
-                _buildLoginLink(),
-              ],
+                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "Regístrate para continuar",
+                    style: TextStyle(color: Color(0xFF1E88E5)),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildNameField(),
+                  const SizedBox(height: 20),
+                  _buildSurnameField(),
+                  const SizedBox(height: 20),
+                  _buildBirthDateField(),
+                  const SizedBox(height: 20),
+                  _buildEmailField(),
+                  const SizedBox(height: 20),
+                  _buildPasswordField(),
+                  const SizedBox(height: 20),
+                  _buildRegisterButton(),
+                  const SizedBox(height: 20),
+                  _buildLoginLink(),
+                ],
+              ),
             ),
           ),
         ),
@@ -151,7 +153,7 @@ class _RegisterViewState extends State<RegisterView> {
       },
       decoration: const InputDecoration(
         labelText: "Nombre",
-        prefixIcon: Icon(Icons.person, color: Color(0xFF1E88E5)),
+        prefixIcon: Icon(CupertinoIcons.person, color: Color(0xFF1E88E5)),
         labelStyle: TextStyle(color: Color(0xFF1E88E5)),
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Color(0xFF1E88E5)),
@@ -175,7 +177,7 @@ class _RegisterViewState extends State<RegisterView> {
       },
       decoration: const InputDecoration(
         labelText: "Apellido",
-        prefixIcon: Icon(Icons.person, color: Color(0xFF1E88E5)),
+        prefixIcon: Icon(CupertinoIcons.person, color: Color(0xFF1E88E5)),
         labelStyle: TextStyle(color: Color(0xFF1E88E5)),
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Color(0xFF1E88E5)),
@@ -188,45 +190,44 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
-Widget _buildBirthDateField() {
-  return TextFormField(
-    controller: fechaNacControl,
-    readOnly: true,
-    onTap: () async {
-      DateTime? pickedDate = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(1900),
-        lastDate: DateTime.now(),
-      );
+  Widget _buildBirthDateField() {
+    return TextFormField(
+      controller: fechaNacControl,
+      readOnly: true,
+      onTap: () async {
+        DateTime? pickedDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime.now(),
+        );
 
-      if (pickedDate != null) {
-        setState(() {
-          fechaNacControl.text = "${pickedDate.toLocal()}".split(' ')[0];
-        });
-      }
-    },
-    validator: (value) {
-      if (value!.isEmpty) {
-        return "Debe ingresar una fecha de nacimiento";
-      }
-      return null;
-    },
-    decoration: const InputDecoration(
-      labelText: "Fecha de Nacimiento",
-      prefixIcon: Icon(Icons.calendar_today, color: Color(0xFF1E88E5)),
-      labelStyle: TextStyle(color: Color(0xFF1E88E5)),
-      enabledBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        if (pickedDate != null) {
+          setState(() {
+            fechaNacControl.text = "${pickedDate.toLocal()}".split(' ')[0];
+          });
+        }
+      },
+      validator: (value) {
+        if (value!.isEmpty) {
+          return "Debe ingresar una fecha de nacimiento";
+        }
+        return null;
+      },
+      decoration: const InputDecoration(
+        labelText: "Fecha de Nacimiento",
+        prefixIcon: Icon(CupertinoIcons.calendar, color: Color(0xFF1E88E5)),
+        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
       ),
-      focusedBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: Color(0xFF1E88E5)),
-      ),
-    ),
-    style: const TextStyle(color: Colors.blue),
-  );
-}
-
+      style: const TextStyle(color: Colors.blue),
+    );
+  }
 
   Widget _buildEmailField() {
     return TextFormField(
@@ -242,7 +243,7 @@ Widget _buildBirthDateField() {
       },
       decoration: const InputDecoration(
         labelText: "Correo",
-        prefixIcon: Icon(Icons.email, color: Color(0xFF1E88E5)),
+        prefixIcon: Icon(CupertinoIcons.mail, color: Color(0xFF1E88E5)),
         labelStyle: TextStyle(color: Color(0xFF1E88E5)),
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Color(0xFF1E88E5)),
@@ -257,7 +258,7 @@ Widget _buildBirthDateField() {
 
   Widget _buildPasswordField() {
     return TextFormField(
-      obscureText: true,
+      obscureText: _obscureText,
       controller: claveControl,
       validator: (value) {
         if (value!.isEmpty) {
@@ -265,14 +266,25 @@ Widget _buildBirthDateField() {
         }
         return null;
       },
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         labelText: "Clave",
-        prefixIcon: Icon(Icons.lock, color: Color(0xFF1E88E5)),
-        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
-        enabledBorder: UnderlineInputBorder(
+        prefixIcon: const Icon(CupertinoIcons.lock, color: Color(0xFF1E88E5)),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscureText ? Icons.visibility : Icons.visibility_off,
+            color: const Color(0xFF1E88E5),
+          ),
+          onPressed: () {
+            setState(() {
+              _obscureText = !_obscureText;
+            });
+          },
+        ),
+        labelStyle: const TextStyle(color: Color(0xFF1E88E5)),
+        enabledBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Color(0xFF1E88E5)),
         ),
-        focusedBorder: UnderlineInputBorder(
+        focusedBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Color(0xFF1E88E5)),
         ),
       ),
