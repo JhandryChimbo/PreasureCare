@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/controls/util/util.dart';
 import 'package:frontend/widgets/buttons/button.dart';
 import 'package:frontend/widgets/toast/error.dart';
+import 'package:frontend/widgets/toast/confirm.dart';
 import 'package:frontend/controls/backendService/FacadeServices.dart';
 import 'package:intl/intl.dart';
 
@@ -30,8 +31,10 @@ class _HomeViewState extends State<HomeView> {
   Future<void> _fetchUltimaPresion() async {
     try {
       final String? idPersona = await Util().getValue('external');
+      if (idPersona == null) throw Exception('ID Persona is null');
+      
       final facadeServices = FacadeServices();
-      final ultimaPresion = await facadeServices.ultimaPresion(idPersona!);
+      final ultimaPresion = await facadeServices.ultimaPresion(idPersona);
 
       if (ultimaPresion.data['presion'] != null) {
         final presion = ultimaPresion.data['presion'] as List<dynamic>;
@@ -55,6 +58,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> _registrarPresion() async {
+    FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
 
     final sistolica = int.tryParse(sistolicaController.text);
@@ -78,9 +82,13 @@ class _HomeViewState extends State<HomeView> {
       'id_persona': idPersona,
     };
 
+    _showLoadingDialog();
+
     try {
       FacadeServices facadeServices = FacadeServices();
       final respuesta = await facadeServices.registrarPresion(presion);
+
+      Navigator.of(context).pop(); // Close the loading dialog
 
       if (respuesta.code == 201) {
         final Map<String, dynamic> medicacion = respuesta.data['medicacion'];
@@ -97,10 +105,12 @@ class _HomeViewState extends State<HomeView> {
               'Dosis: ${medicacion['dosis']}\n'
               'Recomendación: ${medicacion['recomendacion']}',
         );
+        ConfirmToast.show('Presión registrada');
       } else {
         ErrorToast.show('No se pudo registrar la presión.');
       }
     } catch (e) {
+      Navigator.of(context).pop(); // Close the loading dialog
       ErrorToast.show('Hubo un problema al registrar la presión.');
     }
 
@@ -110,8 +120,13 @@ class _HomeViewState extends State<HomeView> {
 
   Future<void> _fetchHistorial() async {
     final idPersona = await Util().getValue('external');
+    if (idPersona == null) {
+      ErrorToast.show('Usuario no identificado.');
+      return;
+    }
+
     final facadeServices = FacadeServices();
-    final historial = await facadeServices.historialDia(idPersona!);
+    final historial = await facadeServices.historialDia(idPersona);
 
     if (historial.code == 200) {
       final presiones = historial.data['presion'] as List<dynamic>;
@@ -125,19 +140,42 @@ class _HomeViewState extends State<HomeView> {
       }
       setState(() {
         _historial.clear();
-        _historial.addAll(Map.fromEntries(registros.entries
-            .map((entry) => MapEntry(entry.key, entry.value))));
+        _historial.addAll(registros);
       });
     } else {
       ErrorToast.show('No se pudo obtener el historial de presiones.');
     }
   }
 
+  void _showLoadingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 16),
+              Text('Registrando presión...'),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ingreso de Presión Arterial'),
+        centerTitle: true,
+        title: const Text(
+          'Ingreso de Presión Arterial',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        // foregroundColor: Colors.white,
+        // backgroundColor: const Color(0xFF1E88E5),
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -160,12 +198,15 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _buildUltimaPresion() {
-    return Text(
+Widget _buildUltimaPresion() {
+  return Align(
+    alignment: Alignment.centerLeft,
+    child: Text(
       _ultimaPresion,
-      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-    );
-  }
+      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500 ),
+    ),
+  );
+}
 
   Widget _buildForm() {
     return Form(
@@ -175,7 +216,6 @@ class _HomeViewState extends State<HomeView> {
           _buildTextField(
             controller: sistolicaController,
             labelText: 'Presión Sistólica',
-            hintText: '',
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Por favor, ingresa un valor para la presión sistólica';
@@ -187,7 +227,6 @@ class _HomeViewState extends State<HomeView> {
           _buildTextField(
             controller: diastolicaController,
             labelText: 'Presión Diastólica',
-            hintText: '',
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Por favor, ingresa un valor para la presión diastólica';
@@ -208,7 +247,6 @@ class _HomeViewState extends State<HomeView> {
   Widget _buildTextField({
     required TextEditingController controller,
     required String labelText,
-    required String hintText,
     required String? Function(String?) validator,
   }) {
     return TextFormField(
@@ -216,34 +254,48 @@ class _HomeViewState extends State<HomeView> {
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
         labelText: labelText,
-        hintText: hintText,
-        border: const OutlineInputBorder(),
+        focusedBorder: const OutlineInputBorder(),
+        enabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey,width: 0.5),
+        ),
+        errorBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.red, width: 1.0),
+        ),
+        focusedErrorBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.red, width: 2.0),
+        ),
       ),
       validator: validator,
+      style: const TextStyle(color: Colors.grey),
     );
   }
 
   Widget _buildHistorial() {
-    _fetchHistorial();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           'Historial de Registros',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 18,),
         ),
         const SizedBox(height: 8),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: DataTable(
-            columns: const [
-              DataColumn(label: Text('Presión')),
-              DataColumn(label: Text('Fecha y Hora')),
+            columns: [
+              DataColumn(label: Text('Presión', style: TextStyle(color: Colors.grey[800]))),
+              DataColumn(label: Text('Fecha y Hora', style: TextStyle(color: Colors.grey[800]))),
             ],
             rows: _historial.entries.map((entry) {
               return DataRow(cells: [
-                DataCell(Text(entry.value)),
-                DataCell(Text(entry.key)),
+                DataCell(Text(
+                  entry.value,
+                  style: TextStyle(color: Colors.grey[600]),
+                )),
+                DataCell(Text(
+                  entry.key,
+                  style: TextStyle(color: Colors.grey[600]),
+                )),
               ]);
             }).toList(),
           ),
@@ -279,6 +331,7 @@ class _HomeViewState extends State<HomeView> {
               child: const Text('Cerrar'),
               onPressed: () {
                 Navigator.of(context).pop();
+                FocusScope.of(context).unfocus();
               },
             ),
           ],
