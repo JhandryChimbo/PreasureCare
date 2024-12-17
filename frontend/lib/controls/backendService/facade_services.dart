@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:frontend/controls/backendService/GenericAnswer.dart';
+import 'package:frontend/controls/backendService/generic_answer.dart';
 import 'package:frontend/controls/backendService/model/register.dart';
 import 'package:frontend/controls/conexion.dart';
 import 'package:frontend/controls/backendService/model/login.dart';

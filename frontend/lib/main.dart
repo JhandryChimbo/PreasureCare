@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/views/exception/page404.dart';
-import 'package:frontend/views/homeView.dart';
-import 'package:frontend/views/loginView.dart';
-import 'package:frontend/views/registerView.dart';
+import 'package:frontend/views/home_view.dart';
+import 'package:frontend/views/login_view.dart';
+import 'package:frontend/views/register_view.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,7 +11,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

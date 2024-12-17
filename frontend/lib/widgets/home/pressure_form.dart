@@ -8,12 +8,12 @@ class PressureForm extends StatelessWidget {
   final void Function() onSubmit;
 
   const PressureForm({
-    Key? key,
+    super.key,
     required this.formKey,
     required this.systolicController,
     required this.diastolicController,
     required this.onSubmit,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

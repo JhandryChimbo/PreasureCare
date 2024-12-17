@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/controls/util/util.dart';
-import 'package:frontend/widgets/home/medicationDialog.dart';
+import 'package:frontend/widgets/home/last_pressure_card.dart';
+import 'package:frontend/widgets/home/medication_dialog.dart';
+import 'package:frontend/widgets/home/pressure_form.dart';
+import 'package:frontend/widgets/home/pressure_history_table.dart';
 import 'package:frontend/widgets/toast/error.dart';
 import 'package:frontend/widgets/toast/confirm.dart';
-import 'package:frontend/controls/backendService/FacadeServices.dart';
+import 'package:frontend/controls/backendService/facade_services.dart';
 import 'package:intl/intl.dart';
-
-import '../widgets/home/lastPressureCard.dart';
-import '../widgets/home/pressureForm.dart';
-import '../widgets/home/pressureHistoryTable.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -19,8 +18,8 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController sistolicaController = TextEditingController();
-  final TextEditingController diastolicaController = TextEditingController();
+  final TextEditingController systolicController = TextEditingController();
+  final TextEditingController diastolicController = TextEditingController();
   
   String _ultimaPresion = "N/A";
   bool _isLoading = false;
@@ -33,10 +32,10 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> _initializeData() async {
-    await Future.wait([_fetchUltimaPresion(), _fetchHistorial()]);
+    await Future.wait([_fetchLastPressure(), _fetchHistory()]);
   }
 
-  Future<void> _fetchUltimaPresion() async {
+  Future<void> _fetchLastPressure() async {
     try {
       final idPersona = await Util().getValue('external');
       if (idPersona == null) throw Exception('ID Persona is null');
@@ -53,7 +52,7 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
-  Future<void> _fetchHistorial() async {
+  Future<void> _fetchHistory() async {
     try {
       final idPersona = await Util().getValue('external');
       if (idPersona == null) throw Exception('Usuario no identificado.');
@@ -75,12 +74,12 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
-  Future<void> _registrarPresion() async {
+  Future<void> _registerPressure() async {
     FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
 
-    final sistolica = int.tryParse(sistolicaController.text);
-    final diastolica = int.tryParse(diastolicaController.text);
+    final sistolica = int.tryParse(systolicController.text);
+    final diastolica = int.tryParse(diastolicController.text);
     final idPersona = await Util().getValue('external');
 
     if (sistolica == null || diastolica == null || idPersona == null) {
@@ -112,7 +111,7 @@ class _HomeViewState extends State<HomeView> {
 
         setState(() {
           _ultimaPresion = 'Último registro: $sistolica/$diastolica';
-          _fetchHistorial();
+          _fetchHistory();
         });
 
         MedicationDialog.show(
@@ -130,8 +129,8 @@ class _HomeViewState extends State<HomeView> {
       ErrorToast.show('Hubo un problema al registrar la presión.');
     } finally {
       setState(() => _isLoading = false);
-      sistolicaController.clear();
-      diastolicaController.clear();
+      systolicController.clear();
+      diastolicController.clear();
     }
   }
 
@@ -152,9 +151,9 @@ class _HomeViewState extends State<HomeView> {
                 const SizedBox(height: 16),
                 PressureForm(
                   formKey: _formKey,
-                  systolicController: sistolicaController,
-                  diastolicController: diastolicaController,
-                  onSubmit: _registrarPresion,
+                  systolicController: systolicController,
+                  diastolicController: diastolicController,
+                  onSubmit: _registerPressure,
                 ),
                 const SizedBox(height: 16),
                 PressureHistoryTable(history: _historial),

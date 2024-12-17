@@ -4,9 +4,9 @@ class PressureHistoryTable extends StatelessWidget {
   final Map<String, dynamic> history;
 
   const PressureHistoryTable({
-    Key? key,
+    super.key,
     required this.history,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
