@@ -4,9 +4,9 @@ class LastPressureCard extends StatelessWidget {
   final String lastPressure;
 
   const LastPressureCard({
-    Key? key,
+    super.key,
     required this.lastPressure,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

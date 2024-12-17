@@ -1,8 +1,9 @@
 import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/controls/backendService/FacadeServices.dart';
+import 'package:frontend/controls/backendService/facade_services.dart';
 import 'package:frontend/controls/util/util.dart';
+import 'package:frontend/services/navigation_service.dart';
 import 'package:frontend/widgets/buttons/button.dart';
 import 'package:validators/validators.dart';
 import 'package:frontend/widgets/toast/informative.dart';
@@ -22,45 +23,45 @@ class _LoginViewState extends State<LoginView> {
   bool _isLoading = false;
   bool _obscureText = true;
 
-  Future<void> _iniciar() async {
-    FocusScope.of(context).unfocus();
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+Future<void> _iniciar() async {
+  FocusScope.of(context).unfocus();
+  if (_formKey.currentState!.validate()) {
+    setState(() {
+      _isLoading = true;
+    });
 
-      FacadeServices servicio = FacadeServices();
-      Map<String, String> mapa = {
-        "correo": correoControl.text,
-        "clave": claveControl.text
-      };
-      log(mapa.toString());
+    FacadeServices servicio = FacadeServices();
+    Map<String, String> mapa = {
+      "correo": correoControl.text,
+      "clave": claveControl.text,
+    };
+    log(mapa.toString());
 
-      final value = await servicio.login(mapa);
-      setState(() {
-        _isLoading = false;
-      });
+    final value = await servicio.login(mapa);
+    setState(() {
+      _isLoading = false;
+    });
 
-      if (value.code == 200) {
-        log(value.data['token']);
-        log(value.data['usuario']);
-        Util util = Util();
-        await util.saveValue('token', value.data['token']);
-        await util.saveValue('usuario', value.data['usuario']);
-        await util.saveValue('external', value.data['external']);
-        InformativeToast.show("BIENVENIDO ${value.data['usuario']}");
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/home',
-          (Route<dynamic> route) => false,
-        );
-      } else {
-        ErrorToast.show(value.msg);
-      }
+    if (value.code == 200) {
+      log(value.data['token']);
+      log(value.data['usuario']);
+      
+      Util util = Util();
+      await util.saveValue('token', value.data['token']);
+      await util.saveValue('usuario', value.data['usuario']);
+      await util.saveValue('external', value.data['external']);
+
+      InformativeToast.show("BIENVENIDO ${value.data['usuario']}");
+
+      NavigationService.navigateBasedOnRole(context, value.data['token']);
     } else {
-      log("Errores");
+      ErrorToast.show(value.msg);
     }
+  } else {
+    log("Errores en el formulario");
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

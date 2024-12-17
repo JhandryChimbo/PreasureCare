@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:frontend/controls/util/util.dart';
-import 'package:frontend/controls/backendService/GenericAnswer.dart';
+import 'package:frontend/controls/backendService/generic_answer.dart';
 
 class Conexion {
   static const String URL = 'https://preasurecare.onrender.com/pressure/';
