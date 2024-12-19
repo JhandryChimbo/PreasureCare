@@ -70,6 +70,11 @@ class FacadeServices {
     return await conexion.solicitudGet('persona/presiones/10/$idPersona', true);
   }
 
+  //Historial de pacientes
+  Future<GenericAnswer> pacientesHistorial() async {
+    return await conexion.solicitudGet('persona/historial', true);
+  }
+
   //Registrar presion
   Future<GenericAnswer> registrarPresion(Map<String, dynamic> presion,) async {
     return await conexion.solicitudPost('presion/save', true, presion);
