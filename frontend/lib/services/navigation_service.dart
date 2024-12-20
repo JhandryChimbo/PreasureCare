@@ -7,7 +7,7 @@ import 'package:frontend/services/auth_service.dart';
 class NavigationService {
   static const Map<String, Widget> roleViews = {
     "administrador": HomeView(),
-    "paciente": HomeDoctorView(),
+    "doctor": HomeDoctorView(),
     "guest": Page404(),
   };
 

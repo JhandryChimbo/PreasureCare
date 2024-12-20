@@ -1,13 +1,8 @@
-import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/controls/backendService/facade_services.dart';
-import 'package:frontend/controls/util/util.dart';
-import 'package:frontend/services/navigation_service.dart';
+import 'package:frontend/services/login_service.dart';
 import 'package:frontend/widgets/buttons/button.dart';
 import 'package:validators/validators.dart';
-import 'package:frontend/widgets/toast/informative.dart';
-import 'package:frontend/widgets/toast/error.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -22,46 +17,6 @@ class _LoginViewState extends State<LoginView> {
   final TextEditingController claveControl = TextEditingController();
   bool _isLoading = false;
   bool _obscureText = true;
-
-Future<void> _iniciar() async {
-  FocusScope.of(context).unfocus();
-  if (_formKey.currentState!.validate()) {
-    setState(() {
-      _isLoading = true;
-    });
-
-    FacadeServices servicio = FacadeServices();
-    Map<String, String> mapa = {
-      "correo": correoControl.text,
-      "clave": claveControl.text,
-    };
-    log(mapa.toString());
-
-    final value = await servicio.login(mapa);
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (value.code == 200) {
-      log(value.data['token']);
-      log(value.data['usuario']);
-      
-      Util util = Util();
-      await util.saveValue('token', value.data['token']);
-      await util.saveValue('usuario', value.data['usuario']);
-      await util.saveValue('external', value.data['external']);
-
-      InformativeToast.show("BIENVENIDO ${value.data['usuario']}");
-
-      NavigationService.navigateBasedOnRole(context, value.data['token']);
-    } else {
-      ErrorToast.show(value.msg);
-    }
-  } else {
-    log("Errores en el formulario");
-  }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +89,19 @@ Future<void> _iniciar() async {
                 const SizedBox(height: 20),
                 _buildPasswordField(),
                 const SizedBox(height: 20),
-                ConfirmButton(text: "Iniciar Sesión", onPressed: _iniciar),
+                ConfirmButton(text: "Iniciar Sesión", onPressed: () {
+                  LoginService.login(
+                    context: context,
+                    formKey: _formKey,
+                    correoControl: correoControl,
+                    claveControl: claveControl,
+                    setLoading: (value) {
+                      setState(() {
+                        _isLoading = value;
+                      });
+                    },
+                  );
+                }),
                 const SizedBox(height: 20),
                 _buildRegisterLink(),
               ],

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/controls/util/util.dart';
-import 'package:frontend/widgets/home/last_pressure_card.dart';
 import 'package:frontend/widgets/home/medication_dialog.dart';
 import 'package:frontend/widgets/home/pressure_form.dart';
 import 'package:frontend/widgets/home/pressure_history_table.dart';
@@ -21,7 +20,6 @@ class _HomeDoctorViewState extends State<HomeDoctorView> {
   final TextEditingController sistolicaController = TextEditingController();
   final TextEditingController diastolicaController = TextEditingController();
   
-  String _ultimaPresion = "N/A";
   bool _isLoading = false;
   Map<String, dynamic> _historial = {};
 
@@ -32,25 +30,9 @@ class _HomeDoctorViewState extends State<HomeDoctorView> {
   }
 
   Future<void> _initializeData() async {
-    await Future.wait([_fetchUltimaPresion(), _fetchHistorial()]);
+    await Future.wait([_fetchHistorial()]);
   }
 
-  Future<void> _fetchUltimaPresion() async {
-    try {
-      final idPersona = await Util().getValue('external');
-      if (idPersona == null) throw Exception('ID Persona is null');
-
-      final facadeServices = FacadeServices();
-      final ultimaPresion = await facadeServices.ultimaPresion(idPersona);
-      setState(() {
-        _ultimaPresion = ultimaPresion.data['presion'] != null
-            ? 'Último registro: ${ultimaPresion.data['presion'][0]['sistolica']}/${ultimaPresion.data['presion'][0]['diastolica']}'
-            : 'No se encontró información de presión';
-      });
-    } catch (e) {
-      setState(() => _ultimaPresion = 'Error al obtener la última presión');
-    }
-  }
 
   Future<void> _fetchHistorial() async {
     try {
@@ -110,7 +92,6 @@ class _HomeDoctorViewState extends State<HomeDoctorView> {
         final Map<String, dynamic> medicacion = respuesta.data['medicacion'];
 
         setState(() {
-          _ultimaPresion = 'Último registro: $sistolica/$diastolica';
           _fetchHistorial();
         });
 
