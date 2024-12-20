@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/controls/backendService/facade_services.dart';
+import 'package:frontend/services/login_service.dart';
 import 'package:frontend/widgets/toast/error.dart';
 import 'package:validators/validators.dart';
 import 'package:frontend/widgets/toast/informative.dart';
@@ -43,7 +44,17 @@ class _RegisterViewState extends State<RegisterView> {
         try {
           if (value.code == 200) {
             InformativeToast.show("Cuenta Creada correctamente");
-            Navigator.pushReplacementNamed(context, '/home');
+            LoginService.login(
+                    context: context,
+                    formKey: _formKey,
+                    correoControl: correoControl,
+                    claveControl: claveControl,
+                    setLoading: (value) {
+                      setState(() {
+                        _isLoading = value;
+                      });
+                    },
+                  );
           } else {
             final SnackBar msg = SnackBar(content: Text("Error ${value.msg}"));
             ScaffoldMessenger.of(context).showSnackBar(msg);
