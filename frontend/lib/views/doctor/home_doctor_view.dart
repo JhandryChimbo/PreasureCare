@@ -147,7 +147,6 @@ class _HomeDoctorViewState extends State<HomeDoctorView> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                LastPressureCard(lastPressure: _ultimaPresion),
                 const SizedBox(height: 16),
                 PressureForm(
                   formKey: _formKey,
