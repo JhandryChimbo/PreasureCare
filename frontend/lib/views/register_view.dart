@@ -1,11 +1,8 @@
-import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/controls/backendService/facade_services.dart';
-import 'package:frontend/services/login_service.dart';
-import 'package:frontend/widgets/toast/error.dart';
+import 'package:frontend/services/register_service.dart';
+import 'package:frontend/widgets/buttons/button.dart';
 import 'package:validators/validators.dart';
-import 'package:frontend/widgets/toast/informative.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -23,52 +20,6 @@ class _RegisterViewState extends State<RegisterView> {
   final TextEditingController fechaNacControl = TextEditingController();
   bool _isLoading = false;
   bool _obscureText = true;
-
-  Future<void> _registrar() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-
-      FacadeServices servicio = FacadeServices();
-      Map<String, String> mapa = {
-        "correo": correoControl.text,
-        "clave": claveControl.text,
-        "nombres": nombreControl.text,
-        "apellidos": apellidoControl.text,
-        "fecha_nacimiento": fechaNacControl.text,
-      };
-      log(mapa.toString());
-
-      servicio.register(mapa).then((value) async {
-        try {
-          if (value.code == 200) {
-            InformativeToast.show("Cuenta Creada correctamente");
-            LoginService.login(
-                    context: context,
-                    formKey: _formKey,
-                    correoControl: correoControl,
-                    claveControl: claveControl,
-                    setLoading: (value) {
-                      setState(() {
-                        _isLoading = value;
-                      });
-                    },
-                  );
-          } else {
-            final SnackBar msg = SnackBar(content: Text("Error ${value.msg}"));
-            ScaffoldMessenger.of(context).showSnackBar(msg);
-          }
-        } catch (error) {
-          ErrorToast.show("Error durante la creación de la cuenta");
-        }
-      }).catchError((error) {
-        ErrorToast.show("Error durante la creación de la cuenta: $error");
-      });
-    } else {
-      log("Errores");
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +92,25 @@ class _RegisterViewState extends State<RegisterView> {
                   const SizedBox(height: 20),
                   _buildPasswordField(),
                   const SizedBox(height: 20),
-                  _buildRegisterButton(),
+                  ConfirmButton(
+                      text: "Registrar",
+                      onPressed: () async {
+                        await RegisterService.registerUser(
+                          context: context,
+                          formKey: _formKey,
+                          correoControl: correoControl,
+                          claveControl: claveControl,
+                          nombreControl: nombreControl,
+                          apellidoControl: apellidoControl,
+                          fechaNacControl: fechaNacControl,
+                          setLoading: (value) {
+                            setState(() {
+                              _isLoading = value;
+                            });
+                          },
+                        );
+                        return;
+                      }),
                   const SizedBox(height: 20),
                   _buildLoginLink(),
                 ],
@@ -300,21 +269,6 @@ class _RegisterViewState extends State<RegisterView> {
         ),
       ),
       style: const TextStyle(color: Colors.blue),
-    );
-  }
-
-  Widget _buildRegisterButton() {
-    return ElevatedButton(
-      onPressed: _registrar,
-      style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: const Color(0xFF2897FF),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-      child: const Text(
-        "Registrarse",
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-      ),
     );
   }
 

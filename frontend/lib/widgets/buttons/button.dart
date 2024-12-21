@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-class ConfirmButton extends StatelessWidget {
+class ConfirmButton extends StatefulWidget {
   final String text;
-  final VoidCallback onPressed;
+  final Future<void> Function() onPressed;
   final Color foregroundColor;
   final Color backgroundColor;
   final EdgeInsetsGeometry padding;
@@ -19,17 +19,38 @@ class ConfirmButton extends StatelessWidget {
   });
 
   @override
+  State<ConfirmButton> createState() => _ConfirmButtonState();
+}
+
+class _ConfirmButtonState extends State<ConfirmButton> {
+  bool _isProcessing = false;
+
+  @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: onPressed,
+      onPressed: _isProcessing
+          ? null // Desactiva el botón mientras se procesa.
+          : () async {
+              setState(() {
+                _isProcessing = true;
+              });
+
+              try {
+                await widget.onPressed(); // Ejecuta la operación.
+              } finally {
+                setState(() {
+                  _isProcessing = false;
+                });
+              }
+            },
       style: ElevatedButton.styleFrom(
-        foregroundColor: foregroundColor,
-        backgroundColor: backgroundColor,
-        padding: padding,
+        foregroundColor: widget.foregroundColor,
+        backgroundColor: widget.backgroundColor,
+        padding: widget.padding,
       ),
       child: Text(
-        text,
-        style: textStyle,
+        widget.text,
+        style: widget.textStyle,
       ),
     );
   }

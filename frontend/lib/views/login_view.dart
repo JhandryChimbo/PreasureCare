@@ -89,19 +89,22 @@ class _LoginViewState extends State<LoginView> {
                 const SizedBox(height: 20),
                 _buildPasswordField(),
                 const SizedBox(height: 20),
-                ConfirmButton(text: "Iniciar Sesión", onPressed: () {
-                  LoginService.login(
-                    context: context,
-                    formKey: _formKey,
-                    correoControl: correoControl,
-                    claveControl: claveControl,
-                    setLoading: (value) {
-                      setState(() {
-                        _isLoading = value;
-                      });
-                    },
-                  );
-                }),
+                ConfirmButton(
+                    text: "Iniciar Sesión",
+                    onPressed: () async {
+                      await LoginService.login(
+                        context: context,
+                        formKey: _formKey,
+                        correoControl: correoControl,
+                        claveControl: claveControl,
+                        setLoading: (value) {
+                          setState(() {
+                            _isLoading = value;
+                          });
+                        },
+                      );
+                      return;
+                    }),
                 const SizedBox(height: 20),
                 _buildRegisterLink(),
               ],
