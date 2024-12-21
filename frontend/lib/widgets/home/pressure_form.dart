@@ -5,7 +5,7 @@ class PressureForm extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController systolicController;
   final TextEditingController diastolicController;
-  final void Function() onSubmit;
+  final Future<void> Function() onSubmit;
 
   const PressureForm({
     super.key,
