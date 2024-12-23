@@ -35,6 +35,26 @@ class personaControl {
     }
   }
 
+  async listarPacientes(req, res) {
+    try {
+      const data = await persona.findAll({
+        include: [
+          { model: models.cuenta, as: "cuenta", attributes: ["correo"] },
+          { model: models.rol, attributes: ["nombre"], where: { nombre: "paciente" } },
+        ],
+        attributes: [
+          "nombres",
+          "apellidos",
+          "fecha_nacimiento",
+          ["external_id", "id"],
+        ],
+      });
+      res.status(200).json({ msg: "Listado de pacientes", code: 200, data });
+    } catch (error) {
+      res.status(500).json({ msg: "Error al listar pacientes", code: 500 });
+    }
+  }
+
   /**
    * Listar persona por ID.
    * 
