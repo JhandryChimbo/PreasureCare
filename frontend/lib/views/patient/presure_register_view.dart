@@ -9,14 +9,14 @@ import 'package:frontend/widgets/toast/confirm.dart';
 import 'package:frontend/controls/backendService/facade_services.dart';
 import 'package:intl/intl.dart';
 
-class HomeView extends StatefulWidget {
-  const HomeView({super.key});
+class PressureRegisterView extends StatefulWidget {
+  const PressureRegisterView({super.key});
 
   @override
-  _HomeViewState createState() => _HomeViewState();
+  _PressureRegisterViewState createState() => _PressureRegisterViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _PressureRegisterViewState extends State<PressureRegisterView> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController systolicController = TextEditingController();
   final TextEditingController diastolicController = TextEditingController();
@@ -45,10 +45,11 @@ class _HomeViewState extends State<HomeView> {
       setState(() {
         _ultimaPresion = ultimaPresion.data['presion'] != null
             ? 'Último registro: ${ultimaPresion.data['presion'][0]['sistolica']}/${ultimaPresion.data['presion'][0]['diastolica']}'
-            : 'No se encontró información de presión';
+            : 'No se ha registrado aún una presión';
       });
     } catch (e) {
-      setState(() => _ultimaPresion = 'Error al obtener la última presión');
+      ErrorToast.show('Error al obtener la última presión');
+      setState(() => _ultimaPresion = 'Intentelo más tarde');
     }
   }
 
