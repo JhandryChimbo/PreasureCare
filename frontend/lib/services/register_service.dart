@@ -6,7 +6,6 @@ import 'package:frontend/widgets/toast/error.dart';
 import 'package:frontend/widgets/toast/informative.dart';
 
 class RegisterService {
-  /// Registra un usuario con los datos proporcionados.
   static Future<void> registerUser({
     required BuildContext context,
     required GlobalKey<FormState> formKey,

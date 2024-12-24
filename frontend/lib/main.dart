@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/views/exception/page404.dart';
-import 'package:frontend/views/home_view.dart';
+import 'package:frontend/views/patient/presure_register_view.dart';
 import 'package:frontend/views/login_view.dart';
 import 'package:frontend/views/register_view.dart';
 
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginView(),
         '/register': (context) => const RegisterView(),
-        '/home': (context) => const HomeView(),
+        '/home': (context) => const PressureRegisterView(),
       },
       onGenerateRoute: (settings) {
         return MaterialPageRoute(builder: (context) => const Page404());

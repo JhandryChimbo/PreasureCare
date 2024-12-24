@@ -75,6 +75,11 @@ class FacadeServices {
     return await conexion.solicitudGet('persona/historial', true);
   }
 
+  //Listado Paciente
+  Future<GenericAnswer> listarPacientes() async {
+    return await conexion.solicitudGet('doctor/persona', true);
+  }
+
   //Registrar presion
   Future<GenericAnswer> registrarPresion(Map<String, dynamic> presion,) async {
     return await conexion.solicitudPost('presion/save', true, presion);
