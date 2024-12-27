@@ -1,7 +1,7 @@
 class GenericAnswer {
   String msg;
   int code;
-  Map<String, dynamic> data;
+  dynamic data;
 
   GenericAnswer({
     required this.msg,
