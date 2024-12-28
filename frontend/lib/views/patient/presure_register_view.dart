@@ -7,6 +7,7 @@ import 'package:frontend/widgets/home/pressure_history_table.dart';
 import 'package:frontend/widgets/toast/error.dart';
 import 'package:frontend/widgets/toast/confirm.dart';
 import 'package:frontend/controls/backendService/facade_services.dart';
+import 'package:frontend/widgets/toast/informative.dart';
 import 'package:intl/intl.dart';
 
 class PressureRegisterView extends StatefulWidget {
@@ -21,7 +22,7 @@ class _PressureRegisterViewState extends State<PressureRegisterView> {
   final TextEditingController systolicController = TextEditingController();
   final TextEditingController diastolicController = TextEditingController();
   
-  String _ultimaPresion = "N/A";
+  String _ultimaPresion = "----";
   bool _isLoading = false;
   Map<String, dynamic> _historial = {};
 
@@ -42,6 +43,10 @@ class _PressureRegisterViewState extends State<PressureRegisterView> {
 
       final facadeServices = FacadeServices();
       final ultimaPresion = await facadeServices.ultimaPresion(idPersona);
+      if (ultimaPresion.data['presion'] == null || ultimaPresion.data['presion'].isEmpty) {
+        InformativeToast.show('No se ha registrado aún una presión');
+        return;
+      }
       setState(() {
         _ultimaPresion = ultimaPresion.data['presion'] != null
             ? 'Último registro: ${ultimaPresion.data['presion'][0]['sistolica']}/${ultimaPresion.data['presion'][0]['diastolica']}'
