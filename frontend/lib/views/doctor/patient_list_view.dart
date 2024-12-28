@@ -14,10 +14,10 @@ class _PatientListViewState extends State<PatientListView> {
   @override
   void initState() {
     super.initState();
-    _listarPatients();
+    _listPatients();
   }
 
-  Future<void> _listarPatients() async {
+  Future<void> _listPatients() async {
     try {
       FacadeServices services = FacadeServices();
       var response = await services.listarPacientes();
@@ -40,26 +40,52 @@ class _PatientListViewState extends State<PatientListView> {
       appBar: AppBar(
         title: const Text('Lista de pacientes'),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: patients.length,
-              itemBuilder: (context, index) {
-                final patient = patients[index];
-                return Card(
-                  margin: const EdgeInsets.all(8.0),
-                  child: ListTile(
-                    title:
-                        Text('${patient['nombres']} ${patient['apellidos']}'),
-                    subtitle: Text('Correo: ${patient['cuenta']['correo']}'),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return RefreshIndicator(
+            onRefresh: _listPatients,
+            child: constraints.maxWidth < 600
+                ? _buildListView()
+                : _buildGridView(),
+          );
+        },
       ),
+    );
+  }
+
+  Widget _buildListView() {
+    return ListView.builder(
+      itemCount: patients.length,
+      itemBuilder: (context, index) {
+        final patient = patients[index];
+        return Card(
+          margin: const EdgeInsets.all(8.0),
+          child: ListTile(
+            title: Text('${patient['nombres']} ${patient['apellidos']}'),
+            subtitle: Text('Correo: ${patient['cuenta']['correo']}'),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGridView() {
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 3,
+      ),
+      itemCount: patients.length,
+      itemBuilder: (context, index) {
+        final patient = patients[index];
+        return Card(
+          margin: const EdgeInsets.all(8.0),
+          child: ListTile(
+            title: Text('${patient['nombres']} ${patient['apellidos']}'),
+            subtitle: Text('Correo: ${patient['cuenta']['correo']}'),
+          ),
+        );
+      },
     );
   }
 }
