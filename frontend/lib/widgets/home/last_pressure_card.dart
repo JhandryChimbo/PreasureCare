@@ -11,7 +11,7 @@ class LastPressureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: Alignment.center,
       child: Text(
         lastPressure,
         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),

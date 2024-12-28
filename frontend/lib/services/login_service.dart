@@ -36,7 +36,7 @@ class LoginService {
         await util.saveValue('usuario', value.data['usuario']);
         await util.saveValue('external', value.data['external']);
 
-        InformativeToast.show("BIENVENIDO ${value.data['usuario']}");
+        InformativeToast.show("Bienvenido ${value.data['usuario']}");
 
         NavigationService.navigateBasedOnRole(context, value.data['token']);
       } else {
