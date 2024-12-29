@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/controls/backendService/facade_services.dart';
+import 'package:frontend/views/doctor/patient_pressure_view.dart';
 
 class PatientListView extends StatefulWidget {
   const PatientListView({super.key});
@@ -62,7 +63,20 @@ class _PatientListViewState extends State<PatientListView> {
           margin: const EdgeInsets.all(8.0),
           child: ListTile(
             title: Text('${patient['nombres']} ${patient['apellidos']}'),
-            subtitle: Text('Correo: ${patient['cuenta']['correo']}'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Correo: ${patient['cuenta']['correo']}'),
+                Text('Fecha de nacimiento: ${patient['fecha_nacimiento']}'),
+              ],
+            ),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    PatientHistoryView(patientId: patient['id']),
+              ),
+            ),
           ),
         );
       },
@@ -82,7 +96,20 @@ class _PatientListViewState extends State<PatientListView> {
           margin: const EdgeInsets.all(8.0),
           child: ListTile(
             title: Text('${patient['nombres']} ${patient['apellidos']}'),
-            subtitle: Text('Correo: ${patient['cuenta']['correo']}'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Correo: ${patient['cuenta']['correo']}'),
+                Text('Fecha de nacimiento: ${patient['fecha_nacimiento']}'),
+              ],
+            ),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    PatientHistoryView(patientId: patient['id']),
+              ),
+            ),
           ),
         );
       },
