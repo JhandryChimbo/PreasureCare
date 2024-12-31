@@ -14,6 +14,8 @@ class PatientHistoryView extends StatefulWidget {
 
 class _PatientHistoryViewState extends State<PatientHistoryView> {
   Map<String, dynamic> _historial = {};
+  String _patientName = '';
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -28,16 +30,73 @@ class _PatientHistoryViewState extends State<PatientHistoryView> {
 
       if (historial.code == 200) {
         final presiones = historial.data['presion'] as List<dynamic>;
+        final paciente = '${historial.data['nombres']} ${historial.data['apellidos']}';
         setState(() {
           _historial = {
             for (var presion in presiones)
-              '${presion['fecha']} ${presion['hora']}': '${presion['sistolica']}/${presion['diastolica']}',
+              '${presion['fecha']} ${presion['hora']}':
+                  '${presion['sistolica']}/${presion['diastolica']}',
           };
+          _patientName = paciente;
         });
       }
     } catch (e) {
       ErrorToast.show('No se pudo obtener el historial.');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
+  }
+
+  Future<void> _listPatients() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await _fetchHistory(widget.patientId);
+  }
+
+  Widget _buildListView() {
+    return ListView(
+      children: [
+        if (_patientName.isNotEmpty)
+          Center(
+            child: Text(
+              _patientName,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+        const SizedBox(height: 16),
+        if (_isLoading)
+          const Center(child: CircularProgressIndicator())
+        else if (_historial.isEmpty)
+          const Center(child: Text('No existen registros.'))
+        else
+          Center(child: PressureHistoryTable(history: _historial)),
+      ],
+    );
+  }
+
+  Widget _buildGridView() {
+    return GridView.count(
+      crossAxisCount: 2,
+      children: [
+        if (_patientName.isNotEmpty)
+          Center(
+            child: Text(
+              _patientName,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+        const SizedBox(height: 16),
+        if (_isLoading)
+          const Center(child: CircularProgressIndicator())
+        else if (_historial.isEmpty)
+          const Center(child: Text('No existen registros.'))
+        else
+          Center(child: PressureHistoryTable(history: _historial)),
+      ],
+    );
   }
 
   @override
@@ -46,9 +105,16 @@ class _PatientHistoryViewState extends State<PatientHistoryView> {
       appBar: AppBar(
         title: const Text('Historial del paciente'),
       ),
-      body: _historial.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : PressureHistoryTable(history: _historial),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return RefreshIndicator(
+            onRefresh: _listPatients,
+            child: constraints.maxWidth < 600
+                ? _buildListView()
+                : _buildGridView(),
+          );
+        },
+      ),
     );
   }
 }
