@@ -35,21 +35,28 @@ class _PatientListViewState extends State<PatientListView> {
     }
   }
 
+  Future<bool> _onWillPop() async {
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Lista de pacientes'),
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return RefreshIndicator(
-            onRefresh: _listPatients,
-            child: constraints.maxWidth < 600
-                ? _buildListView()
-                : _buildGridView(),
-          );
-        },
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Lista de pacientes'),
+        ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            return RefreshIndicator(
+              onRefresh: _listPatients,
+              child: constraints.maxWidth < 600
+                  ? _buildListView()
+                  : _buildGridView(),
+            );
+          },
+        ),
       ),
     );
   }
@@ -61,8 +68,21 @@ class _PatientListViewState extends State<PatientListView> {
         final patient = patients[index];
         return Card(
           margin: const EdgeInsets.all(8.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
           child: ListTile(
-            title: Text('${patient['nombres']} ${patient['apellidos']}'),
+            leading: const Icon(
+              Icons.person,
+              color: Color(0xFF1E88E5),
+            ),
+            title: Text(
+              '${patient['nombres']} ${patient['apellidos']}',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1E88E5),
+              ),
+            ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -94,8 +114,21 @@ class _PatientListViewState extends State<PatientListView> {
         final patient = patients[index];
         return Card(
           margin: const EdgeInsets.all(8.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
           child: ListTile(
-            title: Text('${patient['nombres']} ${patient['apellidos']}'),
+            leading: const Icon(
+              Icons.person,
+              color: Color(0xFF1E88E5),
+            ),
+            title: Text(
+              '${patient['nombres']} ${patient['apellidos']}',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1E88E5),
+              ),
+            ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
