@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/controls/util/util.dart';
-import 'package:frontend/widgets/home/last_pressure_card.dart';
-import 'package:frontend/widgets/home/medication_dialog.dart';
-import 'package:frontend/widgets/home/pressure_form.dart';
-import 'package:frontend/widgets/home/pressure_history_table.dart';
-import 'package:frontend/widgets/toast/error.dart';
-import 'package:frontend/widgets/toast/confirm.dart';
-import 'package:frontend/controls/backendService/facade_services.dart';
-import 'package:frontend/widgets/toast/informative.dart';
+import 'package:PressureCare/controls/util/util.dart';
+import 'package:PressureCare/widgets/home/last_pressure_card.dart';
+import 'package:PressureCare/widgets/home/medication_dialog.dart';
+import 'package:PressureCare/widgets/home/pressure_form.dart';
+import 'package:PressureCare/widgets/home/pressure_history_table.dart';
+import 'package:PressureCare/widgets/toast/error.dart';
+import 'package:PressureCare/widgets/toast/confirm.dart';
+import 'package:PressureCare/controls/backendService/facade_services.dart';
+import 'package:PressureCare/widgets/toast/informative.dart';
 import 'package:intl/intl.dart';
 
 class PressureRegisterView extends StatefulWidget {

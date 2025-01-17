@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:developer';
 
-import 'package:frontend/controls/backendService/facade_services.dart';
-import 'package:frontend/controls/util/util.dart';
-import 'package:frontend/services/navigation_service.dart';
-import 'package:frontend/widgets/toast/error.dart';
-import 'package:frontend/widgets/toast/informative.dart';
+import 'package:PressureCare/controls/backendService/facade_services.dart';
+import 'package:PressureCare/controls/util/util.dart';
+import 'package:PressureCare/services/navigation_service.dart';
+import 'package:PressureCare/widgets/toast/error.dart';
+import 'package:PressureCare/widgets/toast/informative.dart';
 
 class LoginService {
   static Future<void> login({

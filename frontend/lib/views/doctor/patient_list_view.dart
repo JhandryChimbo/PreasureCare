@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/controls/backendService/facade_services.dart';
-import 'package:frontend/views/doctor/patient_pressure_view.dart';
+import 'package:PressureCare/controls/backendService/facade_services.dart';
+import 'package:PressureCare/views/doctor/patient_pressure_view.dart';
 
 class PatientListView extends StatefulWidget {
   const PatientListView({super.key});

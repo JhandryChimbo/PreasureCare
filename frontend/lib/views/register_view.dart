@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/services/register_service.dart';
-import 'package:frontend/widgets/buttons/button.dart';
+import 'package:PressureCare/services/register_service.dart';
+import 'package:PressureCare/widgets/buttons/button.dart';
 import 'package:validators/validators.dart';
 
 class RegisterView extends StatefulWidget {

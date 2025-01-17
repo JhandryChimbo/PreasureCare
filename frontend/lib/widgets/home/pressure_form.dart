@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/widgets/buttons/button.dart';
+import 'package:PressureCare/widgets/buttons/button.dart';
 
 class PressureForm extends StatelessWidget {
   final GlobalKey<FormState> formKey;

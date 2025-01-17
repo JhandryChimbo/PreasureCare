@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/services/login_service.dart';
-import 'package:frontend/widgets/buttons/button.dart';
+import 'package:PressureCare/services/login_service.dart';
+import 'package:PressureCare/widgets/buttons/button.dart';
 import 'package:validators/validators.dart';
 
 class LoginView extends StatefulWidget {
