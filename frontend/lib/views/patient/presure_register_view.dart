@@ -142,32 +142,38 @@ class _PressureRegisterViewState extends State<PressureRegisterView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('Ingreso de Presión Arterial'),
-      ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                LastPressureCard(lastPressure: _ultimaPresion),
-                const SizedBox(height: 16),
-                PressureForm(
-                  formKey: _formKey,
-                  systolicController: systolicController,
-                  diastolicController: diastolicController,
-                  onSubmit: _registerPressure,
-                ),
-                const SizedBox(height: 16),
-                PressureHistoryTable(history: _historial),
-              ],
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.of(context).pop();
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text('Ingreso de Presión Arterial'),
+        ),
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  LastPressureCard(lastPressure: _ultimaPresion),
+                  const SizedBox(height: 16),
+                  PressureForm(
+                    formKey: _formKey,
+                    systolicController: systolicController,
+                    diastolicController: diastolicController,
+                    onSubmit: _registerPressure,
+                  ),
+                  const SizedBox(height: 16),
+                  PressureHistoryTable(history: _historial),
+                ],
+              ),
             ),
-          ),
-          if (_isLoading) const Center(child: CircularProgressIndicator()),
-        ],
+            if (_isLoading) const Center(child: CircularProgressIndicator()),
+          ],
+        ),
       ),
     );
   }

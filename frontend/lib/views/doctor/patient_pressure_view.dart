@@ -9,10 +9,10 @@ class PatientHistoryView extends StatefulWidget {
   const PatientHistoryView({super.key, required this.patientId});
 
   @override
-  _PatientHistoryViewState createState() => _PatientHistoryViewState();
+  PatientHistoryViewState createState() => PatientHistoryViewState();
 }
 
-class _PatientHistoryViewState extends State<PatientHistoryView> {
+class PatientHistoryViewState extends State<PatientHistoryView> {
   Map<String, dynamic> _historial = {};
   String _patientName = '';
   bool _isLoading = true;
@@ -101,19 +101,25 @@ class _PatientHistoryViewState extends State<PatientHistoryView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Historial del paciente'),
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return RefreshIndicator(
-            onRefresh: _listPatients,
-            child: constraints.maxWidth < 600
-                ? _buildListView()
-                : _buildGridView(),
-          );
-        },
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.of(context).pop();
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Historial del paciente'),
+        ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            return RefreshIndicator(
+              onRefresh: _listPatients,
+              child: constraints.maxWidth < 600
+                  ? _buildListView()
+                  : _buildGridView(),
+            );
+          },
+        ),
       ),
     );
   }
