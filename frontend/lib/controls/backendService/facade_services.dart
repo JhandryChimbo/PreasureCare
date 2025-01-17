@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:frontend/controls/backendService/generic_answer.dart';
-import 'package:frontend/controls/backendService/model/register.dart';
-import 'package:frontend/controls/conexion.dart';
-import 'package:frontend/controls/backendService/model/login.dart';
+import 'package:PressureCare/controls/backendService/generic_answer.dart';
+import 'package:PressureCare/controls/backendService/model/register.dart';
+import 'package:PressureCare/controls/conexion.dart';
+import 'package:PressureCare/controls/backendService/model/login.dart';
 import 'package:http/http.dart' as http;
 
 class FacadeServices {

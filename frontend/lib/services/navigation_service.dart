@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/views/patient/presure_register_view.dart';
-import 'package:frontend/views/doctor/patient_list_view.dart';
-import 'package:frontend/views/exception/page404.dart';
-import 'package:frontend/services/auth_service.dart';
+import 'package:PressureCare/views/patient/presure_register_view.dart';
+import 'package:PressureCare/views/doctor/patient_list_view.dart';
+import 'package:PressureCare/views/exception/page404.dart';
+import 'package:PressureCare/services/auth_service.dart';
 
 class NavigationService {
   static const Map<String, Widget> roleViews = {

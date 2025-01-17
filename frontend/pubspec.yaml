@@ -1,5 +1,5 @@
-name: frontend
-description: "A new Flutter project."
+name: PressureCare
+description: "Aplicación móvil que permite llevar un control de la presión arterial de cada paciente, además de brindar la dosificación necesaria para cada tipo."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev

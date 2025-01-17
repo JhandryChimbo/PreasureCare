@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/controls/backendService/facade_services.dart';
-import 'package:frontend/widgets/home/pressure_history_table.dart';
-import 'package:frontend/widgets/toast/error.dart';
+import 'package:PressureCare/controls/backendService/facade_services.dart';
+import 'package:PressureCare/widgets/home/pressure_history_table.dart';
+import 'package:PressureCare/widgets/toast/error.dart';
 
 class PatientHistoryView extends StatefulWidget {
   final String patientId;
