@@ -17,5 +17,8 @@ La aplicación móvil, llamada PreasureCare, permite a los pacientes registrar s
 
 ## Funcionalidades
 
+- Autenticación de cuentas.
+- Cuentas basadas en roles.
+- Apartado UI para cada rol.
 - Control de la presion arterial de los paciente.
 - Visualización del historial de registros.
