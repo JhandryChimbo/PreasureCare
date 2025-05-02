@@ -462,6 +462,39 @@ class personaControl {
       res.status(500).json({ msg: "Error interno del servidor", code: 500 });
     }
   }
+
+/**
+ * Actualiza los factores de riesgo de una persona.
+ *
+ * @param {Object} req - Objeto de solicitud HTTP.
+ * @param {Object} res - Objeto de respuesta HTTP.
+ * @returns {Promise<void>} - Respuesta HTTP con el estado de la operación.
+ */
+async actualizarFactoresRiesgo(req, res) {
+  const { id } = req.params;
+  const { hipertension, tabaquismo, dislipidemia } = req.body;
+  await models.persona.update(
+    { hipertension, tabaquismo, dislipidemia },
+    { where: { id } }
+  );
+  res.status(200).json({ message: "Factores de riesgo actualizados" });
+}
+
+/**
+ * Obtiene los antecedentes cardiovasculares de una persona.
+ *
+ * @param {Object} req - Objeto de solicitud HTTP.
+ * @param {Object} res - Objeto de respuesta HTTP.
+ * @returns {Promise<void>} - Respuesta HTTP con los antecedentes encontrados.
+ */
+async obtenerAntecedentes(req, res) {
+  const { id_persona } = req.params;
+  const antecedentes = await models.antecedenteCardiovascular.findAll({ 
+    where: { id_persona } 
+  });
+  res.status(200).json(antecedentes);
+}
+
 }
 
 module.exports = personaControl;
