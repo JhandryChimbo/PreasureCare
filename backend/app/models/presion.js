@@ -1,21 +1,16 @@
 "use strict";
+
 module.exports = (sequelize, DataTypes) => {
-    const presion = sequelize.define(
-        "presion",
+    const rol = sequelize.define(
+        "rol",
         {
-            fecha: {type: DataTypes.DATEONLY},
-            hora: {type: DataTypes.TIME},
-            sistolica : {type: DataTypes.INTEGER, allowNull: false},
-            diastolica : {type: DataTypes.INTEGER, allowNull: false},
+            nombre: {type: DataTypes.STRING(50), unique: true},
             external_id: {type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4},
         },
-        { freezeTableName: true }
+        { timestamps: false, freezeTableName: true }
     );
-    presion.associate = function (models){
-        presion.belongsTo(models.persona, { foreignKey: "id_persona" });
-        presion.belongsTo(models.medicacion, { foreignKey: "id_medicacion" });
+    rol.associate = function (models){
+        rol.hasMany(models.persona, { foreignKey: "id_rol", as: "persona"});
     };
-
-    return presion;
-    
+    return rol;
 };
