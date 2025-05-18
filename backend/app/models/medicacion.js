@@ -1,7 +1,7 @@
 "use strict";
 module.exports = (sequelize, DataTypes) => {
-  const tratamiento = sequelize.define(
-    "tratamiento",
+  const medicacion = sequelize.define(
+    "medicacion",
     {
       nombre: { type: DataTypes.STRING(50), allowNull: false },
       medicamento: { type: DataTypes.STRING(50), allowNull: false },
@@ -11,9 +11,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     { freezeTableName: true }
   );
-  tratamiento.associate = function (models) {
-    tratamiento.hasMany(models.presion, { foreignKey: "id_tratamiento", as: "presion" });
+  medicacion.associate = function (models) {
+    medicacion.hasMany(models.presion, { foreignKey: "id_medicacion", as: "presion" });
   };
 
-  return tratamiento;
+  return medicacion;
 };
