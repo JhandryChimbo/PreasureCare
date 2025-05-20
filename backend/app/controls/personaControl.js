@@ -9,7 +9,7 @@ var bcrypt = require("bcrypt");
 class personaControl {
   /**
    * Lista todas las personas con sus respectivas cuentas y roles.
-   * 
+   *
    * @param {Object} req - Objeto de solicitud HTTP.
    * @param {Object} res - Objeto de respuesta HTTP.
    * @returns {Promise<void>} - Retorna una promesa que resuelve en una respuesta HTTP con el listado de personas.
@@ -40,12 +40,27 @@ class personaControl {
       const data = await persona.findAll({
         include: [
           { model: models.cuenta, as: "cuenta", attributes: ["correo"] },
-          { model: models.rol, attributes: ["nombre"], where: { nombre: "paciente" } },
+          {
+            model: models.rol,
+            attributes: ["nombre"],
+            where: { nombre: "paciente" },
+          },
         ],
         attributes: [
           "nombres",
           "apellidos",
           "fecha_nacimiento",
+          "hipertension",
+          "tabaquismo",
+          "dislipidemia",
+          "peso",
+          "sobrepeso",
+          "sexo",
+          "infarto_agudo_miocardio",
+          "arritmia",
+          "miocardiopatia_dilatada",
+          "miocardiopatia_no_dilatada",
+          "otros_antecedentes",
           ["external_id", "id"],
         ],
       });
@@ -57,12 +72,12 @@ class personaControl {
 
   /**
    * Listar persona por ID.
-   * 
+   *
    * Este método busca una persona en la base de datos utilizando un ID externo proporcionado en los parámetros de la solicitud.
    * Si el ID externo no está presente, devuelve un error 400.
    * Si la persona no se encuentra, devuelve un error 404.
    * Si ocurre un error en el servidor, devuelve un error 500.
-   * 
+   *
    * @param {Object} req - El objeto de solicitud HTTP.
    * @param {Object} req.params - Los parámetros de la solicitud.
    * @param {string} req.params.external - El ID externo de la persona.
@@ -89,7 +104,9 @@ class personaControl {
         ],
       });
       if (!data) {
-        return res.status(404).json({ msg: "Persona no encontrada", code: 404 });
+        return res
+          .status(404)
+          .json({ msg: "Persona no encontrada", code: 404 });
       }
       res.status(200).json({ msg: "Persona encontrada", code: 200, data });
     } catch (error) {
@@ -127,14 +144,15 @@ class personaControl {
         attributes: ["nombres", "apellidos", "fecha_nacimiento"],
       });
       if (!data) {
-        return res.status(404).json({ msg: "Persona no encontrada", code: 404 });
+        return res
+          .status(404)
+          .json({ msg: "Persona no encontrada", code: 404 });
       }
       res.status(200).json({ msg: "Persona encontrada", code: 200, data });
     } catch (error) {
-      res.status(500).json({ msg: "Error interno del servidor", code: 500});
+      res.status(500).json({ msg: "Error interno del servidor", code: 500 });
     }
-  };
-
+  }
 
   /**
    * Listar las últimas 10 presiones de una persona.
@@ -161,13 +179,18 @@ class personaControl {
             as: "presion",
             attributes: ["fecha", "hora", "sistolica", "diastolica"],
             limit: 20,
-            order: [["fecha", "DESC"], ["hora", "DESC"]],
+            order: [
+              ["fecha", "DESC"],
+              ["hora", "DESC"],
+            ],
           },
         ],
         attributes: ["nombres", "apellidos", "fecha_nacimiento"],
       });
       if (!data) {
-        return res.status(404).json({ msg: "Persona no encontrada", code: 404 });
+        return res
+          .status(404)
+          .json({ msg: "Persona no encontrada", code: 404 });
       }
       res.status(200).json({ msg: "Persona encontrada", code: 200, data });
     } catch (error) {
@@ -177,12 +200,12 @@ class personaControl {
 
   /**
    * Listar los historiales de presión arterial de las personas.
-   * 
+   *
    * Este método obtiene una lista de personas junto con sus historiales de presión arterial,
    * incluyendo la fecha, hora, presión sistólica y diastólica.
-   * 
+   *
    * Usado para el apartado del rol doctor.
-   * 
+   *
    * @param {Object} req - El objeto de solicitud HTTP.
    * @param {Object} res - El objeto de respuesta HTTP.
    * @returns {Promise<void>} - Una promesa que resuelve en una respuesta HTTP con el listado de historiales.
@@ -201,15 +224,17 @@ class personaControl {
         attributes: ["nombres", "apellidos", "fecha_nacimiento"],
       });
       if (!data) {
-        return res.status(404).json({ msg: "Persona no encontrada", code: 404 });
+        return res
+          .status(404)
+          .json({ msg: "Persona no encontrada", code: 404 });
       }
       res.status(200).json({ msg: "Listado de historiales", code: 200, data });
-    }catch (error) {
+    } catch (error) {
       res.status(500).json({ msg: "Error al listar historiales", code: 500 });
     }
-  };
+  }
 
-   /**
+  /**
    * Listar la última presión registrada de una persona.
    *
    * Este método busca la última presión registrada de una persona en la base de datos
@@ -235,24 +260,33 @@ class personaControl {
             model: models.presion,
             as: "presion",
             attributes: ["sistolica", "diastolica"],
-            order: [["fecha", "DESC"], ["hora", "DESC"]],
+            order: [
+              ["fecha", "DESC"],
+              ["hora", "DESC"],
+            ],
             limit: 1,
           },
         ],
         attributes: ["nombres", "apellidos"],
       });
       if (!data) {
-        return res.status(404).json({ msg: "Persona no encontrada", code: 404 });
+        return res
+          .status(404)
+          .json({ msg: "Persona no encontrada", code: 404 });
       }
-      res.status(200).json({ msg: "Última presión registrada", code: 200, data });
+      res
+        .status(200)
+        .json({ msg: "Última presión registrada", code: 200, data });
     } catch (error) {
-      res.status(500).json({ msg: "Error al listar la última presión", code: 500 });
+      res
+        .status(500)
+        .json({ msg: "Error al listar la última presión", code: 500 });
     }
-  };
-  
+  }
+
   /**
    * Crea una nueva persona en la base de datos.
-   * 
+   *
    * @param {Object} req - Objeto de solicitud HTTP.
    * @param {Object} req.body - Cuerpo de la solicitud que contiene los datos de la persona.
    * @param {string} req.body.nombres - Nombres de la persona.
@@ -262,20 +296,30 @@ class personaControl {
    * @param {string} req.body.clave - Clave de la cuenta de la persona.
    * @param {string} req.body.id_rol - ID del rol asociado a la persona.
    * @param {Object} res - Objeto de respuesta HTTP.
-   * 
+   *
    * @returns {Promise<void>} - Retorna una respuesta HTTP con el resultado de la operación.
-   * 
+   *
    * @throws {Error} - Retorna un error si ocurre algún problema durante la creación de la persona.
    */
   async crear(req, res) {
-    const { nombres, apellidos, fecha_nacimiento, correo, clave, id_rol } = req.body;
-    if (!nombres || !apellidos || !fecha_nacimiento || !correo || !clave || !id_rol) {
+    const { nombres, apellidos, fecha_nacimiento, correo, clave, id_rol } =
+      req.body;
+    if (
+      !nombres ||
+      !apellidos ||
+      !fecha_nacimiento ||
+      !correo ||
+      !clave ||
+      !id_rol
+    ) {
       return res.status(400).json({ msg: "Faltan datos", code: 400 });
     }
     try {
       const existeCuenta = await cuenta.findOne({ where: { correo } });
       if (existeCuenta) {
-        return res.status(400).json({ msg: "El correo ya está en uso", code: 400 });
+        return res
+          .status(400)
+          .json({ msg: "El correo ya está en uso", code: 400 });
       }
       const uuid = require("uuid");
       const rolAux = await rol.findOne({ where: { external_id: id_rol } });
@@ -301,7 +345,9 @@ class personaControl {
         });
         if (!resultado) {
           await transaction.rollback();
-          return res.status(400).json({ msg: "Error al crear la persona", code: 400 });
+          return res
+            .status(400)
+            .json({ msg: "Error al crear la persona", code: 400 });
         }
         await transaction.commit();
         rolAux.external_id = uuid.v4();
@@ -331,13 +377,32 @@ class personaControl {
    */
   async crearUsuario(req, res) {
     const { nombres, apellidos, fecha_nacimiento, correo, clave } = req.body;
-    if (!nombres || !apellidos || !fecha_nacimiento || !correo || !clave) {
+    if (
+      !nombres ||
+      !apellidos ||
+      !fecha_nacimiento ||
+      !hipertension ||
+      !tabaquismo ||
+      !dislipidemia ||
+      !peso ||
+      !sobrepeso ||
+      !sexo ||
+      !infarto_agudo_miocardio ||
+      !arritmia ||
+      !miocardiopatia_dilatada ||
+      !miocardiopatia_no_dilatada ||
+      !otros_antecedentes ||
+      !correo ||
+      !clave
+    ) {
       return res.status(400).json({ msg: "Faltan datos", code: 400 });
     }
     try {
       const existeCuenta = await cuenta.findOne({ where: { correo } });
       if (existeCuenta) {
-        return res.status(400).json({ msg: "El correo ya está en uso", code: 400 });
+        return res
+          .status(400)
+          .json({ msg: "El correo ya está en uso", code: 400 });
       }
       const uuid = require("uuid");
       const rolAux = await rol.findOne({ where: { nombre: "paciente" } });
@@ -348,6 +413,17 @@ class personaControl {
         nombres,
         apellidos,
         fecha_nacimiento,
+        hipertension,
+        tabaquismo,
+        dislipidemia,
+        peso,
+        sobrepeso,
+        sexo,
+        infarto_agudo_miocardio,
+        arritmia,
+        miocardiopatia_dilatada,
+        miocardiopatia_no_dilatada,
+        otros_antecedentes,
         id_rol: rolAux.id,
         external_id: uuid.v4(),
         cuenta: {
@@ -363,7 +439,9 @@ class personaControl {
         });
         if (!resultado) {
           await transaction.rollback();
-          return res.status(400).json({ msg: "Error al crear la persona", code: 400 });
+          return res
+            .status(400)
+            .json({ msg: "Error al crear la persona", code: 400 });
         }
         await transaction.commit();
         rolAux.external_id = uuid.v4();
@@ -400,12 +478,20 @@ class personaControl {
     }
     try {
       const transaction = await models.sequelize.transaction();
-      const personaModificar = await persona.findOne({ where: { external_id: external }, transaction });
+      const personaModificar = await persona.findOne({
+        where: { external_id: external },
+        transaction,
+      });
       if (!personaModificar) {
         await transaction.rollback();
-        return res.status(404).json({ msg: "Persona no encontrada", code: 404 });
+        return res
+          .status(404)
+          .json({ msg: "Persona no encontrada", code: 404 });
       }
-      const rolAux = await rol.findOne({ where: { external_id: id_rol }, transaction });
+      const rolAux = await rol.findOne({
+        where: { external_id: id_rol },
+        transaction,
+      });
       if (!rolAux) {
         await transaction.rollback();
         return res.status(404).json({ msg: "Rol no encontrado", code: 404 });
@@ -446,10 +532,16 @@ class personaControl {
     }
     try {
       const transaction = await models.sequelize.transaction();
-      const personaModificar = await persona.findOne({ where: { external_id: external }, include: [{model: cuenta, as: "cuenta"}], transaction });
+      const personaModificar = await persona.findOne({
+        where: { external_id: external },
+        include: [{ model: cuenta, as: "cuenta" }],
+        transaction,
+      });
       if (!personaModificar) {
         await transaction.rollback();
-        return res.status(404).json({ msg: "Persona no encontrada", code: 404 });
+        return res
+          .status(404)
+          .json({ msg: "Persona no encontrada", code: 404 });
       }
       personaModificar.cuenta.estado = !personaModificar.cuenta.estado;
       personaModificar.external_id = require("uuid").v4();
@@ -463,38 +555,37 @@ class personaControl {
     }
   }
 
-/**
- * Actualiza los factores de riesgo de una persona.
- *
- * @param {Object} req - Objeto de solicitud HTTP.
- * @param {Object} res - Objeto de respuesta HTTP.
- * @returns {Promise<void>} - Respuesta HTTP con el estado de la operación.
- */
-async actualizarFactoresRiesgo(req, res) {
-  const { id } = req.params;
-  const { hipertension, tabaquismo, dislipidemia } = req.body;
-  await models.persona.update(
-    { hipertension, tabaquismo, dislipidemia },
-    { where: { id } }
-  );
-  res.status(200).json({ message: "Factores de riesgo actualizados" });
-}
+  /**
+   * Actualiza los factores de riesgo de una persona.
+   *
+   * @param {Object} req - Objeto de solicitud HTTP.
+   * @param {Object} res - Objeto de respuesta HTTP.
+   * @returns {Promise<void>} - Respuesta HTTP con el estado de la operación.
+   */
+  async actualizarFactoresRiesgo(req, res) {
+    const { id } = req.params;
+    const { hipertension, tabaquismo, dislipidemia } = req.body;
+    await models.persona.update(
+      { hipertension, tabaquismo, dislipidemia },
+      { where: { id } }
+    );
+    res.status(200).json({ message: "Factores de riesgo actualizados" });
+  }
 
-/**
- * Obtiene los antecedentes cardiovasculares de una persona.
- *
- * @param {Object} req - Objeto de solicitud HTTP.
- * @param {Object} res - Objeto de respuesta HTTP.
- * @returns {Promise<void>} - Respuesta HTTP con los antecedentes encontrados.
- */
-async obtenerAntecedentes(req, res) {
-  const { id_persona } = req.params;
-  const antecedentes = await models.antecedenteCardiovascular.findAll({ 
-    where: { id_persona } 
-  });
-  res.status(200).json(antecedentes);
-}
-
+  /**
+   * Obtiene los antecedentes cardiovasculares de una persona.
+   *
+   * @param {Object} req - Objeto de solicitud HTTP.
+   * @param {Object} res - Objeto de respuesta HTTP.
+   * @returns {Promise<void>} - Respuesta HTTP con los antecedentes encontrados.
+   */
+  async obtenerAntecedentes(req, res) {
+    const { id_persona } = req.params;
+    const antecedentes = await models.antecedenteCardiovascular.findAll({
+      where: { id_persona },
+    });
+    res.status(200).json(antecedentes);
+  }
 }
 
 module.exports = personaControl;
