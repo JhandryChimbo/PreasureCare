@@ -115,29 +115,28 @@ class presionControl {
   }
 
   asignarMedicacion = async (sistolica, diastolica, transaction) => {
-    const medicacionRangos = [
-      { rango: [180, 120], nombre: "Crisis hipertensiva" },
-      { rango: [140, 90], nombre: "Hipertension en etapa 2" },
-      { rango: [130, 80], nombre: "Hipertension en etapa 1" },
-      { rango: [120, 79], nombre: "Elevada" },
-    ];
-  
-    let nombreMedicacion = "Normal";
-    for (const { rango, nombre } of medicacionRangos) {
-      if (sistolica >= rango[0] || diastolica >= rango[1]) {
-        nombreMedicacion = nombre;
-        break;
-      }
+    let nombreMedicacion = "Presión arterial normal";
+
+    if (sistolica >= 160 || diastolica >= 100) {
+      nombreMedicacion = "Hipertensión arterial nivel 2";
+    } else if ((sistolica >= 140 && sistolica <= 159) || (diastolica >= 90 && diastolica <= 99)) {
+      nombreMedicacion = "Hipertensión arterial nivel 1";
+    } else if ((sistolica >= 130 && sistolica <= 139) || (diastolica >= 80 && diastolica <= 89)) {
+      nombreMedicacion = "Presión arterial limítrofe";
+    } else if (sistolica >= 140 && diastolica < 90) {
+      nombreMedicacion = "Hipertensión arterial sistólica aislada";
     }
-  
+
     const medicacionAsignada = await medicacion.findOne({
       where: { nombre: nombreMedicacion },
       attributes: ["nombre", "medicamento", "dosis", "recomendacion", ["external_id", "id"]],
       transaction,
     });
-  
+
     return medicacionAsignada;
-  };  
+  };
+
+
 }
 
 module.exports = presionControl;

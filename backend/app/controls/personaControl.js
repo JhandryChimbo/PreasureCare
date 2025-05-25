@@ -376,22 +376,42 @@ class personaControl {
    * @returns {Promise<void>} - Respuesta HTTP con el resultado de la operación.
    */
   async crearUsuario(req, res) {
-    const { nombres, apellidos, fecha_nacimiento, correo, clave } = req.body;
+    const {
+      nombres,
+      apellidos,
+      fecha_nacimiento,
+      hipertension,
+      tabaquismo,
+      dislipidemia,
+      altura,
+      peso,
+      sobrepeso,
+      sexo,
+      infarto_agudo_miocardio,
+      arritmia,
+      miocardiopatia_dilatada,
+      miocardiopatia_no_dilatada,
+      otros_antecedentes,
+      correo,
+      clave,
+    } = req.body;
+
     if (
       !nombres ||
       !apellidos ||
       !fecha_nacimiento ||
-      !hipertension ||
-      !tabaquismo ||
-      !dislipidemia ||
-      !peso ||
-      !sobrepeso ||
+      hipertension === undefined ||
+      tabaquismo === undefined ||
+      dislipidemia === undefined ||
+      altura === undefined ||
+      peso === undefined ||
+      sobrepeso === undefined ||
       !sexo ||
-      !infarto_agudo_miocardio ||
-      !arritmia ||
-      !miocardiopatia_dilatada ||
-      !miocardiopatia_no_dilatada ||
-      !otros_antecedentes ||
+      infarto_agudo_miocardio === undefined ||
+      arritmia === undefined ||
+      miocardiopatia_dilatada === undefined ||
+      miocardiopatia_no_dilatada === undefined ||
+      otros_antecedentes === undefined ||
       !correo ||
       !clave
     ) {
@@ -416,6 +436,7 @@ class personaControl {
         hipertension,
         tabaquismo,
         dislipidemia,
+        altura,
         peso,
         sobrepeso,
         sexo,

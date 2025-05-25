@@ -16,7 +16,8 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: "no",
       },
       dislipidemia: { type: DataTypes.BOOLEAN, defaultValue: false },
-      peso: { type: DataTypes.FLOAT, allowNull: true },
+      altura: { type: DataTypes.FLOAT, allowNull: false },
+      peso: { type: DataTypes.FLOAT, allowNull: false },
       sobrepeso: { type: DataTypes.BOOLEAN, defaultValue: false },
       sexo: {
         type: DataTypes.ENUM("masculino", "femenino", "otro"),
