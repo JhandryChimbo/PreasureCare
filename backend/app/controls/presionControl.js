@@ -114,17 +114,39 @@ class presionControl {
     }
   }
 
-  asignarMedicacion = async (sistolica, diastolica, transaction) => {
-    let nombreMedicacion = "Presión arterial normal";
+  /**
+   * Asigna una medicación basada en los valores de presión arterial.
+   *
+   * @param {number} sistolica - Valor de la presión sistólica.
+   * @param {number} diastolica - Valor de la presión diastólica.
+   * @param {Object} transaction - Transacción de Sequelize para asegurar la atomicidad.
+   * @returns {Promise<Object>} - Devuelve una promesa que resuelve con la medicación asignada.
+   * @throws {Error} - Lanza un error si ocurre un problema al asignar la medicación.
+   */
+  asignarMedicacion = async (sistolicaRaw, diastolicaRaw, transaction) => {
+    const sistolica = parseFloat(sistolicaRaw);
+    const diastolica = parseFloat(diastolicaRaw);
+
+    if (
+      isNaN(sistolica) ||
+      isNaN(diastolica) ||
+      sistolica <= 0 ||
+      diastolica <= 0 ||
+      diastolica >= sistolica
+    ) {
+      throw new Error("Valores de presión no válidos. Asegúrate de ingresar números válidos y que la presión diastólica sea menor que la sistólica.");
+    }
+
+    let nombreMedicacion = "Presión Arterial Normal";
 
     if (sistolica >= 160 || diastolica >= 100) {
-      nombreMedicacion = "Hipertensión arterial nivel 2";
+      nombreMedicacion = "Hipertensión Arterial Nivel 2";
     } else if ((sistolica >= 140 && sistolica <= 159) || (diastolica >= 90 && diastolica <= 99)) {
-      nombreMedicacion = "Hipertensión arterial nivel 1";
-    } else if ((sistolica >= 130 && sistolica <= 139) || (diastolica >= 80 && diastolica <= 89)) {
-      nombreMedicacion = "Presión arterial limítrofe";
+      nombreMedicacion = "Hipertensión Arterial Nivel 1";
     } else if (sistolica >= 140 && diastolica < 90) {
-      nombreMedicacion = "Hipertensión arterial sistólica aislada";
+      nombreMedicacion = "Hipertensión Sistólica Aislada";
+    } else if ((sistolica >= 130 && sistolica <= 139) || (diastolica >= 80 && diastolica <= 89)) {
+      nombreMedicacion = "Presión Arterial Limítrofe";
     }
 
     const medicacionAsignada = await medicacion.findOne({

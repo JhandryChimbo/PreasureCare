@@ -1,24 +1,24 @@
 # PreasureCare
 
-La aplicación móvil, llamada PreasureCare, permite a los pacientes registrar su presión arterial y, en base a los rangos ingresados, recibir una dosificación recomendada. Los doctores pueden acceder a un panel de visualización para revisar el historial de presión arterial de todos los pacientes, facilitando el seguimiento y manejo de tratamientos.
+The mobile application, called **PreasureCare**, allows patients to record their blood pressure and, based on the entered ranges, receive a recommended dosage. Doctors can access a dashboard to review the blood pressure history of all patients, making it easier to monitor and manage treatments.
 
-## Tecnologías Utilizadas
+## Technologies Used
 
-- **Express.js**: Framework de Node.js utilizado para construir el backend de la aplicación.
-- **Flutter**: Framework de desarrollo de aplicaciones móviles utilizado para construir la interfaz de usuario.
+* **Express.js**: Node.js framework used to build the backend of the application.
+* **Flutter**: Mobile app development framework used to build the user interface.
 
-## App Móvil Screenshots
+## Mobile App Screenshots
 
-<p  float="left">
+<p float="left">
   <img src="images/LoginView.jpg" width="200"/>
   <img src="images/RegisterView.jpg" width="200"/>
   <img src="images/HomeView.jpg" width="200"/>
 </p>
 
-## Funcionalidades
+## Features
 
-- Autenticación de cuentas.
-- Cuentas basadas en roles.
-- Apartado UI para cada rol.
-- Control de la presion arterial de los paciente.
-- Visualización del historial de registros.
+* Account authentication.
+* Role-based accounts.
+* UI section for each role.
+* Patient blood pressure monitoring.
+* Record history visualization.

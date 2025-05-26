@@ -385,7 +385,6 @@ class personaControl {
       dislipidemia,
       altura,
       peso,
-      sobrepeso,
       sexo,
       infarto_agudo_miocardio,
       arritmia,
@@ -405,7 +404,6 @@ class personaControl {
       dislipidemia === undefined ||
       altura === undefined ||
       peso === undefined ||
-      sobrepeso === undefined ||
       !sexo ||
       infarto_agudo_miocardio === undefined ||
       arritmia === undefined ||
@@ -429,6 +427,11 @@ class personaControl {
       if (!rolAux) {
         return res.status(404).json({ msg: "Rol no encontrado", code: 404 });
       }
+
+      const alturaMetros = altura / 100; // Convertir altura a metros
+      const imc = peso / (alturaMetros * alturaMetros); // Calcular IMC
+      const sobrepeso = imc >= 25 && imc < 30; // Determinar si hay sobrepeso
+
       const data = {
         nombres,
         apellidos,

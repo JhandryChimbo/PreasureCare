@@ -4,8 +4,8 @@ module.exports = (sequelize, DataTypes) => {
     "medicacion",
     {
       nombre: { type: DataTypes.STRING(50), allowNull: false },
-      medicamento: { type: DataTypes.STRING(50), allowNull: false },
-      dosis: { type: DataTypes.STRING(50), allowNull: false },
+      medicamento: { type: DataTypes.STRING, allowNull: false },
+      dosis: { type: DataTypes.STRING, allowNull: false },
       recomendacion: { type: DataTypes.TEXT, allowNull: false },
       external_id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4 },
     },
