@@ -21,4 +21,3 @@ The mobile application, called **PreasureCare**, allows patients to record their
 * Role-based accounts.
 * UI section for each role.
 * Patient blood pressure monitoring.
-* Record history visualization.
