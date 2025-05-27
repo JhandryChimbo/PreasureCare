@@ -8,6 +8,7 @@ import 'package:PressureCare/widgets/toast/error.dart';
 import 'package:PressureCare/widgets/toast/confirm.dart';
 import 'package:PressureCare/controls/backendService/facade_services.dart';
 import 'package:PressureCare/widgets/toast/informative.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:intl/intl.dart';
 
 class PressureRegisterView extends StatefulWidget {
@@ -21,7 +22,7 @@ class _PressureRegisterViewState extends State<PressureRegisterView> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController systolicController = TextEditingController();
   final TextEditingController diastolicController = TextEditingController();
-  
+
   String _ultimaPresion = "----";
   bool _isLoading = false;
   Map<String, dynamic> _historial = {};
@@ -43,7 +44,8 @@ class _PressureRegisterViewState extends State<PressureRegisterView> {
 
       final facadeServices = FacadeServices();
       final ultimaPresion = await facadeServices.ultimaPresion(idPersona);
-      if (ultimaPresion.data['presion'] == null || ultimaPresion.data['presion'].isEmpty) {
+      if (ultimaPresion.data['presion'] == null ||
+          ultimaPresion.data['presion'].isEmpty) {
         InformativeToast.show('No se ha registrado aún una presión');
         return;
       }
@@ -71,7 +73,8 @@ class _PressureRegisterViewState extends State<PressureRegisterView> {
         setState(() {
           _historial = {
             for (var presion in presiones)
-              '${presion['fecha']} ${presion['hora']}': '${presion['sistolica']}/${presion['diastolica']}',
+              '${presion['fecha']} ${presion['hora']}':
+                  '${presion['sistolica']}/${presion['diastolica']}',
           };
         });
       }
@@ -150,7 +153,15 @@ class _PressureRegisterViewState extends State<PressureRegisterView> {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('Ingreso de Presión Arterial'),
+          title: const Text('Registro'),
+          actions: [
+            IconButton(
+              color: const Color(0xFF2897FF),
+              icon: const Icon(Icons.info_outline),
+              tooltip: 'Información sobre presión arterial',
+              onPressed: _showInfoDialog,
+            ),
+          ],
         ),
         body: Stack(
           children: [
@@ -176,5 +187,44 @@ class _PressureRegisterViewState extends State<PressureRegisterView> {
         ),
       ),
     );
+  }
+
+  void _showInfoDialog() {
+    YoutubePlayerController youtubeController = YoutubePlayerController(
+      initialVideoId: 'dZ4Ko195xPE',
+      flags: const YoutubePlayerFlags(
+        autoPlay: true,
+        mute: false,
+      ),
+    );
+
+    void listener() {
+      if (youtubeController.value.playerState == PlayerState.ended) {
+        Navigator.of(context, rootNavigator: true).maybePop();
+        youtubeController.removeListener(listener);
+        youtubeController.dispose();
+      }
+    }
+
+    youtubeController.addListener(listener);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: AspectRatio(
+            aspectRatio: 1,
+            child: YoutubePlayer(
+              controller: youtubeController,
+              showVideoProgressIndicator: true,
+            ),
+          ),
+        );
+      },
+    ).then((_) {
+      youtubeController.removeListener(listener);
+      youtubeController.dispose();
+    });
   }
 }
