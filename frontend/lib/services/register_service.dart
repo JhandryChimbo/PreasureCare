@@ -14,6 +14,17 @@ class RegisterService {
     required TextEditingController nombreControl,
     required TextEditingController apellidoControl,
     required TextEditingController fechaNacControl,
+    required TextEditingController alturaControl,
+    required TextEditingController pesoControl,
+    required TextEditingController sexoControl,    
+    required TextEditingController tabaquismoControl,
+    required TextEditingController otrosAntecedentesControl,
+    required bool hipertension,
+    required bool dislipidemia,
+    required bool infartoAgudoMiocardio,
+    required bool arritmia,
+    required bool miocardiopatiaDilatada,
+    required bool miocardiopatiaNoDilatada,
     required Function(bool) setLoading,
   }) async {
     if (formKey.currentState!.validate()) {
@@ -26,6 +37,17 @@ class RegisterService {
         "nombres": nombreControl.text,
         "apellidos": apellidoControl.text,
         "fecha_nacimiento": fechaNacControl.text,
+        "altura": (int.tryParse(alturaControl.text) ?? 0).toString(),
+        "peso": (int.tryParse(pesoControl.text) ?? 0).toString(),
+        "sexo": sexoControl.text,
+        "tabaquismo": tabaquismoControl.text,
+        "otros_antecedentes": otrosAntecedentesControl.text,
+        "hipertension": hipertension.toString(),
+        "dislipidemia": dislipidemia.toString(),
+        "infarto_agudo_miocardio": infartoAgudoMiocardio.toString(),
+        "arritmia": arritmia.toString(),
+        "miocardiopatia_dilatada": miocardiopatiaDilatada.toString(),
+        "miocardiopatia_no_dilatada": miocardiopatiaNoDilatada.toString(),
       };
       log(mapa.toString());
 
