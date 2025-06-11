@@ -285,8 +285,15 @@ class _RegisterViewState extends State<RegisterView> {
                       onChanged: (v) => setState(() => tabaquismo = v!),
                     ),
                     RadioListTile(
-                      title: const Text('Tabaquismo no activo'),
+                      title: const Text('No fumador'),
                       value: 'no',
+                      groupValue: tabaquismo,
+                      activeColor: kPrimaryColor,
+                      onChanged: (v) => setState(() => tabaquismo = v!),
+                    ),
+                    RadioListTile(
+                      title: const Text('Extabaquismo'),
+                      value: 'exfumador',
                       groupValue: tabaquismo,
                       activeColor: kPrimaryColor,
                       onChanged: (v) => setState(() => tabaquismo = v!),
