@@ -1,27 +1,30 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:PressureCare/services/register_service.dart';
-
-const kPrimaryColor = Color(0xFF2897FF);
+import 'package:PressureCare/widgets/buttons/button.dart';
+import 'package:validators/validators.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
 
   @override
-  State<RegisterView> createState() => _RegisterViewState();
+  _RegisterViewState createState() => _RegisterViewState();
 }
 
 class _RegisterViewState extends State<RegisterView> {
-  int _pasoActual = 0;
   final _formKey = GlobalKey<FormState>();
 
   // Controladores
-  final nombreCtrl = TextEditingController();
-  final apellidoCtrl = TextEditingController();
-  final fechaNacCtrl = TextEditingController();
-  final correoCtrl = TextEditingController();
-  final claveCtrl = TextEditingController();
-  final alturaCtrl = TextEditingController();
-  final pesoCtrl = TextEditingController();
+  final TextEditingController nombreControl = TextEditingController();
+  final TextEditingController apellidoControl = TextEditingController();
+  final TextEditingController fechaNacControl = TextEditingController();
+  final TextEditingController correoControl = TextEditingController();
+  final TextEditingController claveControl = TextEditingController();
+  final TextEditingController alturaControl = TextEditingController();
+  final TextEditingController pesoControl = TextEditingController();
+  final otrosControl = TextEditingController();
+  final bool _isLoading = false;
+  bool _obscureText = true;
   String? sexo;
   String tabaquismo = 'no';
   bool hipertension = false;
@@ -30,317 +33,478 @@ class _RegisterViewState extends State<RegisterView> {
   bool arritmia = false;
   bool miocardiopatiaDil = false;
   bool miocardiopatiaNoDil = false;
-  final otrosCtrl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Registro paso a paso'),
-        backgroundColor: kPrimaryColor,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: Form(
-        key: _formKey,
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: kPrimaryColor,
-                  secondary: kPrimaryColor,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            children: [
+              _buildBackground(),
+              _buildForm(constraints),
+              if (_isLoading)
+                const Center(
+                  child: CircularProgressIndicator(),
                 ),
-            inputDecorationTheme: const InputDecorationTheme(
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: kPrimaryColor),
-              ),
-              labelStyle: TextStyle(color: kPrimaryColor),
-            ),
-          ),
-          child: Stepper(
-            type: StepperType.vertical,
-            currentStep: _pasoActual,
-            onStepContinue: () async {
-              bool isValid = false;
-
-              switch (_pasoActual) {
-                case 0:
-                  isValid = nombreCtrl.text.isNotEmpty &&
-                      apellidoCtrl.text.isNotEmpty &&
-                      fechaNacCtrl.text.isNotEmpty;
-                  break;
-                case 1:
-                  isValid =
-                      correoCtrl.text.isNotEmpty && claveCtrl.text.isNotEmpty;
-                  break;
-                case 2:
-                  isValid = alturaCtrl.text.isNotEmpty &&
-                      pesoCtrl.text.isNotEmpty &&
-                      sexo != null;
-                  break;
-                case 3:
-                  // En el paso 3 no se requiere validación obligatoria,
-                  // pero puedes agregar lógica si quieres validar al menos una selección
-                  isValid = true;
-                  break;
-              }
-
-              if (!isValid) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Por favor, complete todos los campos.')),
-                );
-                return;
-              }
-              if (_pasoActual < 3) {
-                setState(() => _pasoActual++);
-              } else {
-                if (_formKey.currentState!.validate()) {
-                  setState(() {});
-                  await RegisterService.registerUser(
-                    context: context,
-                    formKey: _formKey,
-                    correoControl: correoCtrl,
-                    claveControl: claveCtrl,
-                    nombreControl: nombreCtrl,
-                    apellidoControl: apellidoCtrl,
-                    fechaNacControl: fechaNacCtrl,
-                    alturaControl: alturaCtrl,
-                    pesoControl: pesoCtrl,
-                    sexoControl: TextEditingController(text: sexo ?? ''),
-                    tabaquismoControl: TextEditingController(text: tabaquismo),
-                    otrosAntecedentesControl: otrosCtrl,
-                    hipertension: hipertension,
-                    dislipidemia: dislipidemia,
-                    infartoAgudoMiocardio: infarto,
-                    arritmia: arritmia,
-                    miocardiopatiaDilatada: miocardiopatiaDil,
-                    miocardiopatiaNoDilatada: miocardiopatiaNoDil,
-                    setLoading: (value) {
-                      setState(() {});
-                    },
-                  );
-                  setState(() {});
-                }
-              }
-            },
-            onStepCancel: () {
-              if (_pasoActual > 0) {
-                setState(() => _pasoActual--);
-              }
-            },
-            controlsBuilder: (context, details) {
-              return Row(
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: kPrimaryColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed: details.onStepContinue,
-                    child: Text(_pasoActual == 3 ? 'Registrar' : 'Siguiente'),
-                  ),
-                  if (_pasoActual > 0)
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        foregroundColor: kPrimaryColor,
-                      ),
-                      onPressed: details.onStepCancel,
-                      child: const Text('Atrás'),
-                    ),
-                ],
-              );
-            },
-            steps: [
-              Step(
-                title: const Text('Datos personales',
-                    style: TextStyle(color: kPrimaryColor)),
-                isActive: _pasoActual >= 0,
-                state: _pasoActual > 0 ? StepState.complete : StepState.indexed,
-                content: Column(
-                  children: [
-                    TextFormField(
-                      controller: nombreCtrl,
-                      decoration: const InputDecoration(labelText: 'Nombres'),
-                      validator: (v) => v!.isEmpty ? 'Campo requerido' : null,
-                    ),
-                    TextFormField(
-                      controller: apellidoCtrl,
-                      decoration: const InputDecoration(labelText: 'Apellidos'),
-                      validator: (v) => v!.isEmpty ? 'Campo requerido' : null,
-                    ),
-                    TextFormField(
-                      controller: fechaNacCtrl,
-                      readOnly: true,
-                      decoration: const InputDecoration(
-                          labelText: 'Fecha de nacimiento'),
-                      onTap: () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime(2000),
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime.now(),
-                          builder: (context, child) {
-                            return Theme(
-                              data: Theme.of(context).copyWith(
-                                colorScheme: const ColorScheme.light(
-                                  primary: kPrimaryColor,
-                                  onPrimary: Colors.white,
-                                  onSurface: Colors.black,
-                                ),
-                              ),
-                              child: child!,
-                            );
-                          },
-                        );
-                        if (picked != null) {
-                          setState(() {
-                            fechaNacCtrl.text =
-                                picked.toLocal().toString().split(' ')[0];
-                          });
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Step(
-                title: const Text('Datos de cuenta',
-                    style: TextStyle(color: kPrimaryColor)),
-                isActive: _pasoActual >= 1,
-                state: _pasoActual > 1 ? StepState.complete : StepState.indexed,
-                content: Column(
-                  children: [
-                    TextFormField(
-                      controller: correoCtrl,
-                      decoration: const InputDecoration(labelText: 'Correo'),
-                      validator: (v) => v!.isEmpty ? 'Campo requerido' : null,
-                    ),
-                    TextFormField(
-                      controller: claveCtrl,
-                      obscureText: true,
-                      decoration: const InputDecoration(labelText: 'Clave'),
-                      validator: (v) => v!.isEmpty ? 'Campo requerido' : null,
-                    ),
-                  ],
-                ),
-              ),
-              Step(
-                title: const Text('Datos biométricos',
-                    style: TextStyle(color: kPrimaryColor)),
-                isActive: _pasoActual >= 2,
-                state: _pasoActual > 2 ? StepState.complete : StepState.indexed,
-                content: Column(
-                  children: [
-                    TextFormField(
-                      controller: alturaCtrl,
-                      decoration:
-                          const InputDecoration(labelText: 'Altura (cm)'),
-                      keyboardType: TextInputType.number,
-                      validator: (v) => v!.isEmpty ? 'Campo requerido' : null,
-                    ),
-                    TextFormField(
-                      controller: pesoCtrl,
-                      decoration: const InputDecoration(labelText: 'Peso (kg)'),
-                      keyboardType: TextInputType.number,
-                      validator: (v) => v!.isEmpty ? 'Campo requerido' : null,
-                    ),
-                    DropdownButtonFormField<String>(
-                      value: sexo,
-                      items: const [
-                        DropdownMenuItem(
-                            value: 'masculino', child: Text('Masculino')),
-                        DropdownMenuItem(
-                            value: 'femenino', child: Text('Femenino')),
-                      ],
-                      onChanged: (value) => setState(() => sexo = value),
-                      decoration: const InputDecoration(labelText: 'Sexo'),
-                      validator: (v) =>
-                          v == null ? 'Seleccione una opción' : null,
-                    ),
-                  ],
-                ),
-              ),
-              Step(
-                title: const Text('Antecedentes médicos',
-                    style: TextStyle(color: kPrimaryColor)),
-                isActive: _pasoActual >= 3,
-                state: _pasoActual == 3 ? StepState.editing : StepState.indexed,
-                content: Column(
-                  children: [
-                    CheckboxListTile(
-                      title: const Text('Hipertensión'),
-                      value: hipertension,
-                      activeColor: kPrimaryColor,
-                      onChanged: (v) => setState(() => hipertension = v!),
-                    ),
-                    RadioListTile(
-                      title: const Text('Tabaquismo activo'),
-                      value: 'activo',
-                      groupValue: tabaquismo,
-                      activeColor: kPrimaryColor,
-                      onChanged: (v) => setState(() => tabaquismo = v!),
-                    ),
-                    RadioListTile(
-                      title: const Text('No fumador'),
-                      value: 'no',
-                      groupValue: tabaquismo,
-                      activeColor: kPrimaryColor,
-                      onChanged: (v) => setState(() => tabaquismo = v!),
-                    ),
-                    RadioListTile(
-                      title: const Text('Extabaquismo'),
-                      value: 'exfumador',
-                      groupValue: tabaquismo,
-                      activeColor: kPrimaryColor,
-                      onChanged: (v) => setState(() => tabaquismo = v!),
-                    ),
-                    CheckboxListTile(
-                      title: const Text('Dislipidemia'),
-                      value: dislipidemia,
-                      activeColor: kPrimaryColor,
-                      onChanged: (v) => setState(() => dislipidemia = v!),
-                    ),
-                    CheckboxListTile(
-                      title: const Text('Infarto agudo de miocardio'),
-                      value: infarto,
-                      activeColor: kPrimaryColor,
-                      onChanged: (v) => setState(() => infarto = v!),
-                    ),
-                    CheckboxListTile(
-                      title: const Text('Arritmia'),
-                      value: arritmia,
-                      activeColor: kPrimaryColor,
-                      onChanged: (v) => setState(() => arritmia = v!),
-                    ),
-                    CheckboxListTile(
-                      title: const Text('Miocardiopatía dilatada'),
-                      value: miocardiopatiaDil,
-                      activeColor: kPrimaryColor,
-                      onChanged: (v) => setState(() => miocardiopatiaDil = v!),
-                    ),
-                    CheckboxListTile(
-                      title: const Text('Miocardiopatía no dilatada'),
-                      value: miocardiopatiaNoDil,
-                      activeColor: kPrimaryColor,
-                      onChanged: (v) =>
-                          setState(() => miocardiopatiaNoDil = v!),
-                    ),
-                    TextFormField(
-                      controller: otrosCtrl,
-                      decoration: const InputDecoration(
-                          labelText: 'Otros antecedentes'),
-                    ),
-                  ],
-                ),
-              ),
             ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBackground() {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+      ),
+    );
+  }
+
+  Widget _buildForm(BoxConstraints constraints) {
+    return Center(
+      child: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: constraints.maxWidth * 0.1,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                const Text(
+                  "PressureCare",
+                  style: TextStyle(
+                    color: Color(0xFF1E88E5),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                // _buildForm1(context),
+                _buildNameField(),
+                const SizedBox(height: 20),
+                _buildLastNameField(),
+                const SizedBox(height: 20),
+                _buildBirthDateField(),
+                const SizedBox(height: 20),
+                _buildHeightField(),
+                const SizedBox(height: 20),
+                _buildWeightField(),
+                const SizedBox(height: 20),
+                _buildSexField(),
+                const SizedBox(height: 20),
+                _buildSmokingField(),
+                const SizedBox(height: 20),
+                _buildOtherMedicalHistoryField(),
+                const SizedBox(height: 20),
+                _buildMedicalHistoryFields(),
+                const SizedBox(height: 20),
+                _buildEmailField(),
+                const SizedBox(height: 20),
+                _buildPasswordField(),
+                const SizedBox(height: 20),
+                ConfirmButton(
+                    text: "Registrar",
+                    onPressed: () async {
+                      await RegisterService.registerUser(
+                        context: context,
+                        formKey: _formKey,
+                        correoControl: correoControl,
+                        claveControl: claveControl,
+                        nombreControl: nombreControl,
+                        apellidoControl: apellidoControl,
+                        fechaNacControl: fechaNacControl,
+                        alturaControl: alturaControl,
+                        pesoControl: pesoControl,
+                        sexoControl: TextEditingController(text: sexo ?? ''),
+                        tabaquismoControl:
+                            TextEditingController(text: tabaquismo),
+                        otrosAntecedentesControl: otrosControl,
+                        hipertension: hipertension,
+                        dislipidemia: dislipidemia,
+                        infartoAgudoMiocardio: infarto,
+                        arritmia: arritmia,
+                        miocardiopatiaDilatada: miocardiopatiaDil,
+                        miocardiopatiaNoDilatada: miocardiopatiaNoDil,
+                        setLoading: (value) {
+                          setState(() {});
+                        },
+                      );
+                      return;
+                    }),
+                const SizedBox(height: 20),
+                _buildLoginLink(),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildNameField() {
+    return TextFormField(
+      controller: nombreControl,
+      validator: (value) {
+        if (value!.isEmpty) {
+          return "Debe ingresar un nombre";
+        }
+        return null;
+      },
+      decoration: const InputDecoration(
+        labelText: "Nombre",
+        prefixIcon: Icon(CupertinoIcons.person, color: Color(0xFF1E88E5)),
+        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+      ),
+      style: const TextStyle(color: Colors.blue),
+    );
+  }
+
+  Widget _buildLastNameField() {
+    return TextFormField(
+      controller: apellidoControl,
+      validator: (value) {
+        if (value!.isEmpty) {
+          return "Debe ingresar un apellido";
+        }
+        return null;
+      },
+      decoration: const InputDecoration(
+        labelText: "Apellido",
+        prefixIcon: Icon(CupertinoIcons.person_alt, color: Color(0xFF1E88E5)),
+        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+      ),
+      style: const TextStyle(color: Colors.blue),
+    );
+  }
+
+  Widget _buildBirthDateField() {
+    return TextFormField(
+      controller: fechaNacControl,
+      readOnly: true,
+      validator: (value) {
+        if (value!.isEmpty) {
+          return "Debe ingresar una fecha de nacimiento";
+        }
+        return null;
+      },
+      decoration: const InputDecoration(
+        labelText: "Fecha de Nacimiento",
+        prefixIcon: Icon(CupertinoIcons.calendar, color: Color(0xFF1E88E5)),
+        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+      ),
+      style: const TextStyle(color: Colors.blue),
+      onTap: () async {
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime.now(),
+          builder: (context, child) {
+            return Theme(
+              data: Theme.of(context).copyWith(
+                colorScheme: const ColorScheme.light(
+                  primary: Color(0xFF1E88E5),
+                  onPrimary: Colors.white,
+                  onSurface: Colors.black,
+                ),
+              ),
+              child: child!,
+            );
+          },
+        );
+        if (picked != null) {
+          setState(() {
+            fechaNacControl.text = picked.toLocal().toString().split(' ')[0];
+          });
+        }
+      },
+    );
+  }
+
+  Widget _buildHeightField() {
+    return TextFormField(
+      controller: alturaControl,
+      validator: (value) {
+        if (value!.isEmpty) {
+          return "Debe ingresar una altura";
+        }
+        return null;
+      },
+      decoration: const InputDecoration(
+        labelText: "Altura (cm)",
+        prefixIcon: Icon(CupertinoIcons.calendar, color: Color(0xFF1E88E5)),
+        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+      ),
+      style: const TextStyle(color: Colors.blue),
+      keyboardType: TextInputType.number,
+    );
+  }
+
+  Widget _buildWeightField() {
+    return TextFormField(
+      controller: pesoControl,
+      validator: (value) {
+        if (value!.isEmpty) {
+          return "Debe ingresar un peso";
+        }
+        return null;
+      },
+      decoration: const InputDecoration(
+        labelText: "Peso (kg)",
+        prefixIcon: Icon(CupertinoIcons.calendar, color: Color(0xFF1E88E5)),
+        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+      ),
+      style: const TextStyle(color: Colors.blue),
+      keyboardType: TextInputType.number,
+    );
+  }
+
+  Widget _buildSexField() {
+    return DropdownButtonFormField<String>(
+      value: sexo,
+      items: const [
+        DropdownMenuItem(value: 'masculino', child: Text('Masculino')),
+        DropdownMenuItem(value: 'femenino', child: Text('Femenino')),
+      ],
+      onChanged: (value) {
+        setState(() {
+          sexo = value;
+        });
+      },
+      decoration: const InputDecoration(
+        labelText: "Sexo",
+        prefixIcon: Icon(CupertinoIcons.person_2_alt, color: Color(0xFF1E88E5)),
+        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+      ),
+      style: const TextStyle(color: Colors.blue),
+    );
+  }
+
+  Widget _buildSmokingField() {
+    return DropdownButtonFormField<String>(
+      value: tabaquismo,
+      items: const [
+        DropdownMenuItem(value: 'activo', child: Text('Activo')),
+        DropdownMenuItem(value: 'no', child: Text('No fumador')),
+        DropdownMenuItem(value: 'exfumador', child: Text('Exfumador')),
+      ],
+      onChanged: (value) {
+        setState(() {
+          tabaquismo = value!;
+        });
+      },
+      decoration: const InputDecoration(
+        labelText: "Tabaquismo",
+        prefixIcon: Icon(CupertinoIcons.smoke, color: Color(0xFF1E88E5)),
+        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+      ),
+      style: const TextStyle(color: Colors.blue),
+    );
+  }
+
+  Widget _buildMedicalHistoryCheckbox(String title, bool value, Function(bool?) onChanged) {
+    return CheckboxListTile(
+      title: Text(title),
+      value: value,
+      onChanged: onChanged,
+      activeColor: const Color(0xFF1E88E5),
+      controlAffinity: ListTileControlAffinity.leading,
+    );
+  }
+
+  Widget _buildMedicalHistoryFields() {
+    return Column(
+      children: [
+        _buildMedicalHistoryCheckbox(
+          "Hipertensión",
+          hipertension,
+          (value) => setState(() => hipertension = value!),
+        ),
+        _buildMedicalHistoryCheckbox(
+          "Dislipidemia",
+          dislipidemia,
+          (value) => setState(() => dislipidemia = value!),
+        ),
+        _buildMedicalHistoryCheckbox(
+          "Infarto Agudo de Miocardio",
+          infarto,
+          (value) => setState(() => infarto = value!),
+        ),
+        _buildMedicalHistoryCheckbox(
+          "Arritmia",
+          arritmia,
+          (value) => setState(() => arritmia = value!),
+        ),
+        _buildMedicalHistoryCheckbox(
+          "Miocardiopatía Dilatada",
+          miocardiopatiaDil,
+          (value) => setState(() => miocardiopatiaDil = value!),
+        ),
+        _buildMedicalHistoryCheckbox(
+          "Miocardiopatía No Dilatada",
+          miocardiopatiaNoDil,
+          (value) => setState(() => miocardiopatiaNoDil = value!),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOtherMedicalHistoryField() {
+    return TextFormField(
+      controller: otrosControl,
+      decoration: const InputDecoration(
+        labelText: "Otros antecedentes",
+        prefixIcon: Icon(CupertinoIcons.doc_text, color: Color(0xFF1E88E5)),
+        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+      ),
+      style: const TextStyle(color: Colors.blue),
+    );
+  }
+
+  Widget _buildEmailField() {
+    return TextFormField(
+      controller: correoControl,
+      validator: (value) {
+        if (value!.isEmpty) {
+          return "Debe ingresar un correo";
+        }
+        if (!isEmail(value)) {
+          return "Debe ingresar un correo válido";
+        }
+        return null;
+      },
+      decoration: const InputDecoration(
+        labelText: "Correo",
+        prefixIcon: Icon(CupertinoIcons.mail, color: Color(0xFF1E88E5)),
+        labelStyle: TextStyle(color: Color(0xFF1E88E5)),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+      ),
+      style: const TextStyle(color: Colors.blue),
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return TextFormField(
+      obscureText: _obscureText,
+      controller: claveControl,
+      validator: (value) {
+        if (value!.isEmpty) {
+          return "Debe ingresar una clave";
+        }
+        return null;
+      },
+      decoration: InputDecoration(
+        labelText: "Clave",
+        prefixIcon: const Icon(CupertinoIcons.lock, color: Color(0xFF1E88E5)),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscureText ? Icons.visibility : Icons.visibility_off,
+            color: const Color(0xFF1E88E5),
+          ),
+          onPressed: () {
+            setState(() {
+              _obscureText = !_obscureText;
+            });
+          },
+        ),
+        labelStyle: const TextStyle(color: Color(0xFF1E88E5)),
+        enabledBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1E88E5)),
+        ),
+      ),
+      style: const TextStyle(color: Colors.blue),
+    );
+  }
+
+  Widget _buildLoginLink() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        const Text(
+          "¿Ya tienes cuenta?",
+          style: TextStyle(color: Color(0xFF1E88E5)),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/login',
+              (Route<dynamic> route) => false,
+            );
+          },
+          child: const Text(
+            "Inicia sesión",
+            style: TextStyle(
+              color: Color(0xFF2897FF),
+              fontSize: 16,
+              decoration: TextDecoration.underline,
+              decorationColor: Color(0xFF2897FF),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
