@@ -62,19 +62,14 @@ class _RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      // Use resizeToAvoidBottomInset: false to prevent the Scaffold from resizing.
-      // We will handle the positioning manually with Stack.
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           _buildBackground(),
-          // Wrap the Stepper in a SingleChildScrollView
-          // This allows the Stepper content to scroll when the keyboard is open
-          // without pushing the bottom link up.
           SingleChildScrollView(
-            physics: const ClampingScrollPhysics(), // Keeps scrolling natural
+            physics: const ClampingScrollPhysics(),
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 80.0), // Add padding for the login link
+              padding: const EdgeInsets.only(bottom: 80.0),
               child: _buildForm(),
             ),
           ),
@@ -109,7 +104,6 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
-  // Removed constraints from _buildForm as it's now inside SingleChildScrollView
   Widget _buildForm() {
     return Form(
       key: _formKey,
@@ -119,7 +113,7 @@ class _RegisterViewState extends State<RegisterView> {
           colorScheme: const ColorScheme.light(primary: AppColors.primaryBlue),
         ),
         child: Stepper(
-          physics: const NeverScrollableScrollPhysics(), // Stepper itself should not scroll; its parent SingleChildScrollView will
+          physics: const NeverScrollableScrollPhysics(),
           type: StepperType.vertical,
           currentStep: _currentStep,
           onStepContinue: _onStepContinue,

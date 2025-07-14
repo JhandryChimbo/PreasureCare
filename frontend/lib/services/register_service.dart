@@ -64,8 +64,8 @@ class RegisterService {
             setLoading: setLoading,
           );
         } else {
-          final SnackBar msg = SnackBar(content: Text("Error: ${value.msg}"));
-          ScaffoldMessenger.of(context).showSnackBar(msg);
+          
+            ErrorToast.show("Error: ${value.msg}");
         }
       } catch (error) {
         ErrorToast.show("Error durante la creación de la cuenta: $error");
